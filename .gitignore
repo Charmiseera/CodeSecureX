@@ -2,6 +2,10 @@
 # Frontend (Next.js)
 # ─────────────────────────────────────────────────────────
 node_modules/
+.agent/
+.vscode/
+project.md
+tasks.md
 .next/
 out/
 dist/
@@ -53,10 +57,7 @@ htmlcov/
 *.env
 .env.*
 secrets.json
-.agent
-.vscode
-project.md
-tasks.md
+
 
 
 # ─────────────────────────────────────────────────────────
