@@ -53,6 +53,10 @@ htmlcov/
 *.env
 .env.*
 secrets.json
+.agent
+.vscode
+project.md
+tasks.md
 
 
 # ─────────────────────────────────────────────────────────
