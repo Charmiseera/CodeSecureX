@@ -49,7 +49,7 @@ export interface AdminAnalytics {
 export const scanCode = (code: string, language: Language) =>
   api.post<ScanResponse>("/scan/analyze", { code, language }).then((r) => r.data);
 
-export const fetchHistory = (limit = 50) =>
+export const getScanHistory = (limit = 50) =>
   api.get<ScanHistoryItem[]>("/history", { params: { limit } }).then((r) => r.data);
 
 export const generateReport = (scan_id: string) =>

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from beanie import init_beanie
 
-from database.connection import get_client, MONGODB_URL
+from database.connection import get_client, get_database, MONGODB_URL
 from models.scan_model import Scan
 from models.report_model import Report
 from models.user_model import User
@@ -22,8 +22,9 @@ async def lifespan(app: FastAPI):
     logger.info("Connecting to MongoDB: %s", MONGODB_URL[:40] + "…")
     client = get_client()
     await init_beanie(
-        database=client.get_default_database(),
+        database=get_database(),
         document_models=[Scan, Report, User],
+
     )
     logger.info("Beanie ODM initialised — collections: scans, reports, users")
     yield

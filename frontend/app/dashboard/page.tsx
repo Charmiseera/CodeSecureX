@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchHistory, fetchAnalytics } from "@/services/api";
+import { getScanHistory, fetchAnalytics } from "@/services/api";
 import type { ScanHistoryItem, AdminAnalytics } from "@/services/api";
 import {
   LayoutDashboard, ScanLine, Shield, AlertTriangle, Clock, RefreshCw,
@@ -55,7 +55,7 @@ export default function DashboardPage() {
     setLoading(true);
     setError(false);
     try {
-      const [h, a] = await Promise.all([fetchHistory(10), fetchAnalytics()]);
+      const [h, a] = await Promise.all([getScanHistory(10), fetchAnalytics()]);
       setHistory(h);
       setAnalytics(a);
     } catch {

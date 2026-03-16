@@ -4,22 +4,22 @@ import { downloadReportUrl } from "@/services/api";
 import { FileDown, FileText } from "lucide-react";
 
 interface Props {
-  reportId: number;
-  scanId: number;
+  reportId: string;
+  scanId: string;
   createdAt?: string;
 }
 
 export function ReportViewer({ reportId, scanId, createdAt }: Props) {
   return (
-    <div className="glass rounded-2xl p-5 flex items-center justify-between gap-4">
+    <div className="glass rounded-2xl p-5 flex items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-[hsl(210,100%,56%)/0.1] border border-[hsl(210,100%,56%)/0.3] rounded-xl flex items-center justify-center">
           <FileText className="w-5 h-5 text-[hsl(210,100%,56%)]" />
         </div>
         <div>
-          <p className="font-semibold text-sm">Security Report #{reportId}</p>
+          <p className="font-semibold text-sm">Security Report</p>
           <p className="text-xs text-[hsl(215,16%,55%)]">
-            Scan #{scanId}{createdAt ? ` · ${new Date(createdAt).toLocaleString()}` : ""}
+            {createdAt ? new Date(createdAt).toLocaleString() : "Ready for download"}
           </p>
         </div>
       </div>

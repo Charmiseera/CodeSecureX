@@ -21,7 +21,7 @@ export function ScanForm({ onScanComplete }: Props) {
   const [loading, setLoading]     = useState(false);
   const [result, setResult]       = useState<ScanResponse | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
-  const [reportId, setReportId]   = useState<number | null>(null);
+  const [reportId, setReportId]   = useState<string | null>(null);
 
   const handleScan = async () => {
     if (!code.trim()) {
@@ -85,9 +85,9 @@ export function ScanForm({ onScanComplete }: Props) {
         </Button>
 
         {result && (
-          <div className="flex items-center gap-2 text-sm text-[hsl(142,71%,45%)]">
+          <div className="flex items-center gap-2 text-sm text-[hsl(142,71%,45%)] animate-in fade-in">
             <CheckCircle className="w-4 h-4" />
-            Scan #{result.scan_id} complete
+            Scan complete
           </div>
         )}
       </div>
