@@ -1,19 +1,20 @@
+"""Scan routes — JWT-protected."""
+
 import logging
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from schemas.scan_schema import ScanRequest, ScanResponse, ScanHistoryItem
 from services.vulnerability_service import run_scan, get_scan_history
+from utils.dependencies import get_current_user
+from models.user_model import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/scan", tags=["Scan"])
 
 
 @router.post("/analyze", response_model=ScanResponse, status_code=status.HTTP_200_OK)
-async def analyze_code(request: ScanRequest):
-    """
-    Submit code for vulnerability analysis.
-    Returns a list of detected vulnerabilities with severity and fix recommendations.
-    """
+async def analyze_code(request: ScanRequest, _: User = Depends(get_current_user)):
+    """Submit code for vulnerability analysis. Requires authentication."""
     try:
         return await run_scan(code=request.code, language=request.language)
     except RuntimeError as exc:
@@ -27,8 +28,8 @@ async def analyze_code(request: ScanRequest):
 
 
 @router.get("/history", response_model=list[ScanHistoryItem])
-async def scan_history(limit: int = 50):
-    """Return the most recent scan history records."""
+async def scan_history(limit: int = 50, _: User = Depends(get_current_user)):
+    """Return scan history. Requires authentication."""
     try:
         return await get_scan_history(limit=min(limit, 200))
     except Exception:

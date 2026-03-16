@@ -6,13 +6,13 @@ import type { AdminAnalytics } from "@/services/api";
 import { Settings, Users, TrendingUp, UserX, RefreshCw, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
 
-type User = { id: number; email: string; is_active: boolean; created_at: string };
+type User = { id: string; username: string; email: string; role: string; is_active: boolean; created_at: string };
 
 export default function AdminPage() {
   const [users, setUsers]         = useState<User[]>([]);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [loading, setLoading]     = useState(true);
-  const [suspending, setSuspending] = useState<number | null>(null);
+  const [suspending, setSuspending] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -27,7 +27,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleSuspend = async (id: number) => {
+  const handleSuspend = async (id: string) => {
     setSuspending(id);
     try {
       await suspendUser(id);

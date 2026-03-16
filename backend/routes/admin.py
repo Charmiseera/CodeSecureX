@@ -1,24 +1,29 @@
+"""Admin routes — JWT-protected, admin role required."""
+
 import json
 import logging
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from beanie import PydanticObjectId
 
 from models.user_model import User
 from models.scan_model import Scan
 from schemas.user_schema import UserResponse, SuspendRequest
+from utils.dependencies import require_admin
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
 @router.get("/users", response_model=list[UserResponse])
-async def list_users():
-    """Return all registered users."""
+async def list_users(_: User = Depends(require_admin)):
+    """Return all registered users. Admin only."""
     users = await User.find().sort(-User.created_at).to_list()
     return [
         UserResponse(
             id=str(u.id),
+            username=u.username,
             email=u.email,
+            role=u.role,
             is_active=u.is_active,
             created_at=u.created_at.isoformat(),
         )
@@ -27,8 +32,8 @@ async def list_users():
 
 
 @router.post("/suspend", status_code=status.HTTP_200_OK)
-async def suspend_user(request: SuspendRequest):
-    """Suspend (deactivate) a user account."""
+async def suspend_user(request: SuspendRequest, _: User = Depends(require_admin)):
+    """Suspend a user account. Admin only."""
     try:
         oid = PydanticObjectId(request.user_id)
     except Exception:
@@ -46,13 +51,12 @@ async def suspend_user(request: SuspendRequest):
 
 
 @router.get("/analytics")
-async def get_analytics():
-    """Return aggregated platform analytics for the admin dashboard."""
+async def get_analytics(_: User = Depends(require_admin)):
+    """Return aggregated platform analytics. Admin only."""
     total_scans = await Scan.count()
     total_users = await User.count()
     active_users = await User.find(User.is_active == True).count()  # noqa: E712
 
-    # Compute most common vulnerability types from stored JSON
     all_scans = await Scan.find_all().to_list()
     vuln_counter: dict[str, int] = {}
     for s in all_scans:
@@ -67,8 +71,8 @@ async def get_analytics():
     top_vulns = sorted(vuln_counter.items(), key=lambda x: x[1], reverse=True)[:10]
 
     return {
-        "total_scans":       total_scans,
-        "total_users":       total_users,
-        "active_users":      active_users,
+        "total_scans":        total_scans,
+        "total_users":        total_users,
+        "active_users":       active_users,
         "top_vulnerabilities": [{"type": t, "count": c} for t, c in top_vulns],
     }
