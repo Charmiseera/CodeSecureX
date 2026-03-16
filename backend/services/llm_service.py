@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 
 from utils.prompt_templates import vulnerability_analysis_prompt, fix_suggestion_prompt
 
+# Max attempts to get valid JSON from the LLM before raising
+_MAX_JSON_RETRIES = 2
+
 # Explicitly load backend/.env relative to this file's location
 ENV_PATH = os.path.join(os.path.dirname(__file__), "..", ".env")
 load_dotenv(dotenv_path=ENV_PATH, override=True)
@@ -32,83 +35,143 @@ else:
 _MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct-fast"
 
 
+def _sanitise_llm_output(text: str) -> str:
+    """Strip markdown fences and leading/trailing prose from raw LLM output."""
+    text = text.strip()
+    # Remove ```json ... ``` or ``` ... ``` fences
+    text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*```$", "", text)
+    # Remove control characters that break JSON parsing (except \t \n \r)
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
+    return text.strip()
+
+
+def _balanced_extract(text: str, open_ch: str, close_ch: str) -> str | None:
+    """Extract the outermost balanced bracket block from text."""
+    start = text.find(open_ch)
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i, ch in enumerate(text[start:], start):
+        if escape:
+            escape = False
+            continue
+        if ch == "\\" and in_string:
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == open_ch:
+            depth += 1
+        elif ch == close_ch:
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+    return None
+
+
 def _extract_json(text: str) -> Any:
     """
-    Robustly extract JSON from a string that might contain conversational text or markdown.
-    Finds the first occurrence of '[' or '{' and the last occurrence of ']' or '}'.
+    Robustly extract JSON from a string that might contain conversational text
+    or markdown fences. Uses balanced-bracket extraction to avoid rfind traps.
     """
-    # 1. Try simple clean first
-    text = text.strip()
-    if text.startswith("```json"):
-        text = text[7:]
-    if text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-    text = text.strip()
+    text = _sanitise_llm_output(text)
 
+    # 1. Try direct parse (happy path)
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        # 2. Find the JSON block boundaries
-        first_bracket = text.find('[')
-        first_brace = text.find('{')
-        
-        start = -1
-        if first_bracket != -1 and (first_brace == -1 or first_bracket < first_brace):
-            start = first_bracket
-            end = text.rfind(']')
-        elif first_brace != -1:
-            start = first_brace
-            end = text.rfind('}')
-        
-        if start != -1 and end != -1 and end > start:
-            try:
-                return json.loads(text[start:end+1])
-            except json.JSONDecodeError as e:
-                logger.error("Failed to parse extracted JSON block: %s", e)
-                logger.debug("Raw problematic text: %s", text)
-        
-        raise
+        pass
+
+    # 2. Balanced-bracket extraction — handles prose before/after the JSON
+    first_bracket = text.find('[')
+    first_brace = text.find('{')
+
+    if first_bracket != -1 and (first_brace == -1 or first_bracket < first_brace):
+        block = _balanced_extract(text, '[', ']')
+    elif first_brace != -1:
+        block = _balanced_extract(text, '{', '}')
+    else:
+        block = None
+
+    if block:
+        try:
+            return json.loads(block)
+        except json.JSONDecodeError as exc:
+            logger.error("Balanced-extract JSON parse failed: %s", exc)
+            logger.error("Problematic block (first 500 chars): %.500s", block)
+
+    logger.error("All JSON extraction strategies failed. Raw text (first 500 chars): %.500s", text)
+    raise json.JSONDecodeError("Could not extract valid JSON from LLM output", text, 0)
 
 def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
     """
     Send code to Nebius LLM for vulnerability analysis.
+    Retries up to _MAX_JSON_RETRIES times on bad JSON before raising.
     Falls back to demo data ONLY if NEBIUS_API_KEY is not set in .env.
     """
     if _client is None:
         logger.info("No API key — returning demo vulnerabilities.")
         return _demo_vulnerabilities(language)
 
-    prompt = vulnerability_analysis_prompt(code, language)
-    try:
-        response = _client.chat.completions.create(
-            model=_MODEL,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are an expert application security engineer. "
-                        "You ALWAYS respond with valid JSON only — no prose, no markdown fences."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.1,
-            max_tokens=4096,
-        )
-        raw = (response.choices[0].message.content or "").strip()
-        vulns = _extract_json(raw)
-        if not isinstance(vulns, list):
-            raise ValueError("LLM did not return a JSON array")
-        return vulns
+    system_msg = (
+        "You are an expert application security engineer. "
+        "You MUST respond with a valid JSON array only. "
+        "No markdown fences, no prose, no preamble, no postscript. "
+        "Start your response with '[' and end with ']'."
+    )
+    messages: list[dict] = [
+        {"role": "system", "content": system_msg},
+        {"role": "user", "content": vulnerability_analysis_prompt(code, language)},
+    ]
 
-    except json.JSONDecodeError as exc:
-        logger.error("LLM returned non-JSON: %s", exc)
-        raise RuntimeError("LLM returned invalid JSON — please try again.") from exc
-    except Exception as exc:
-        logger.error("Nebius API error: %s", exc)
-        raise RuntimeError(f"LLM service error: {exc}") from exc
+    last_exc: Exception | None = None
+    for attempt in range(1, _MAX_JSON_RETRIES + 1):
+        try:
+            response = _client.chat.completions.create(
+                model=_MODEL,
+                messages=messages,
+                temperature=0.1,
+                max_tokens=4096,
+            )
+            raw = (response.choices[0].message.content or "").strip()
+            logger.debug("LLM raw response (attempt %d, first 200 chars): %.200s", attempt, raw)
+
+            vulns = _extract_json(raw)
+
+            if not isinstance(vulns, list):
+                raise ValueError(f"LLM returned {type(vulns).__name__}, expected list")
+
+            logger.info("LLM scan succeeded on attempt %d — %d vulns found", attempt, len(vulns))
+            return vulns
+
+        except (json.JSONDecodeError, ValueError) as exc:
+            last_exc = exc
+            logger.warning("Attempt %d/%d: bad JSON from LLM — %s", attempt, _MAX_JSON_RETRIES, exc)
+            if attempt < _MAX_JSON_RETRIES:
+                # Append assistant's bad reply + correction request for next attempt
+                messages.append({"role": "assistant", "content": raw if 'raw' in dir() else ""})
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        "Your previous response was not valid JSON. "
+                        "Return ONLY a raw JSON array starting with '[' and ending with ']'. "
+                        "No explanation, no markdown, no extra text."
+                    ),
+                })
+
+        except Exception as exc:
+            logger.error("Nebius API error: %s", exc)
+            raise RuntimeError(f"LLM service error: {exc}") from exc
+
+    raise RuntimeError(
+        f"LLM returned invalid JSON after {_MAX_JSON_RETRIES} attempts — please try again."
+    ) from (last_exc if isinstance(last_exc, BaseException) else None)
 
 
 def explain_vulnerability(vuln_type: str, explanation: str) -> str:

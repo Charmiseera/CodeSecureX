@@ -25,6 +25,7 @@ class VulnerabilityItem(BaseModel):
     severity: SeverityLevel
     explanation: str
     fix: str
+    fixed_code: str | None = None   # Complete, copy-pasteable corrected code snippet
 
 
 class ScanResponse(BaseModel):

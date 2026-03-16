@@ -16,6 +16,7 @@ export interface Vulnerability {
   severity: Severity;
   explanation: string;
   fix: string;
+  fixed_code?: string | null;  // Complete corrected code snippet from LLM
 }
 
 export interface ScanResponse {
