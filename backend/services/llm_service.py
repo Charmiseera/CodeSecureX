@@ -33,10 +33,43 @@ _MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct-fast"
 
 
 def _extract_json(text: str) -> Any:
-    """Strip markdown fences if the model wraps its response in ```json ... ```."""
-    cleaned = re.sub(r"```(?:json)?\s*", "", text).strip().rstrip("`").strip()
-    return json.loads(cleaned)
+    """
+    Robustly extract JSON from a string that might contain conversational text or markdown.
+    Finds the first occurrence of '[' or '{' and the last occurrence of ']' or '}'.
+    """
+    # 1. Try simple clean first
+    text = text.strip()
+    if text.startswith("```json"):
+        text = text[7:]
+    if text.startswith("```"):
+        text = text[3:]
+    if text.endswith("```"):
+        text = text[:-3]
+    text = text.strip()
 
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # 2. Find the JSON block boundaries
+        first_bracket = text.find('[')
+        first_brace = text.find('{')
+        
+        start = -1
+        if first_bracket != -1 and (first_brace == -1 or first_bracket < first_brace):
+            start = first_bracket
+            end = text.rfind(']')
+        elif first_brace != -1:
+            start = first_brace
+            end = text.rfind('}')
+        
+        if start != -1 and end != -1 and end > start:
+            try:
+                return json.loads(text[start:end+1])
+            except json.JSONDecodeError as e:
+                logger.error("Failed to parse extracted JSON block: %s", e)
+                logger.debug("Raw problematic text: %s", text)
+        
+        raise
 
 def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
     """
@@ -62,7 +95,7 @@ def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
                 {"role": "user", "content": prompt},
             ],
             temperature=0.1,
-            max_tokens=2048,
+            max_tokens=4096,
         )
         raw = (response.choices[0].message.content or "").strip()
         vulns = _extract_json(raw)

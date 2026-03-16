@@ -30,17 +30,27 @@ async def generate_report(request: ReportRequest):
         )
 
 
-@router.get("/{report_id}")
-async def download_report(report_id: str):
-    """Download a previously generated PDF report by report ID."""
+@router.get("/{scan_id}")
+async def download_report(scan_id: str):
+    """Download a PDF report by scan ID. Generates on the fly if it doesn't exist."""
     try:
-        oid = PydanticObjectId(report_id)
+        oid = PydanticObjectId(scan_id)
     except Exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid report ID")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid scan ID")
 
-    report = await Report.get(oid)
+    report = await Report.find_one(Report.scan_id == oid)
     if report is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
+        try:
+            res = await generate_pdf_report(scan_id=scan_id)
+            report = await Report.get(PydanticObjectId(res.report_id))
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except Exception:
+            logger.exception("Failed to generate report on the fly for scan_id=%s", scan_id)
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to generate report.")
+
+    if report is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report generation failed")
 
     filepath = os.path.join(REPORTS_DIR, report.pdf_filename)
     if not os.path.isfile(filepath):

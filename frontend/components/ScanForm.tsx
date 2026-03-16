@@ -102,30 +102,15 @@ export function ScanForm({ onScanComplete }: Props) {
             </div>
 
             <div className="flex items-center gap-2">
-              {reportId ? (
-                <a
-                  href={downloadReportUrl(reportId)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-4 py-1.5 bg-[hsl(142,71%,45%)/0.15] hover:bg-[hsl(142,71%,45%)/0.25] text-[hsl(142,71%,45%)] border border-[hsl(142,71%,45%)/0.3] rounded-lg text-sm font-medium transition-colors"
-                >
-                  <FileDown className="w-4 h-4" /> Download PDF
-                </a>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGenerateReport}
-                  disabled={reportLoading}
-                  className="gap-1.5 border-[hsl(222,47%,14%)] hover:border-[hsl(210,100%,56%)] hover:text-[hsl(210,100%,56%)]"
-                >
-                  {reportLoading ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating…</>
-                  ) : (
-                    <><FileDown className="w-3.5 h-3.5" /> Generate PDF</>
-                  )}
-                </Button>
-              )}
+              <a
+                href={downloadReportUrl(result.scan_id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-[hsl(142,71%,45%)/0.15] hover:bg-[hsl(142,71%,45%)/0.25] text-[hsl(142,71%,45%)] border border-[hsl(142,71%,45%)/0.3] rounded-lg text-sm font-medium transition-colors"
+                title="Automatically generates and downloads the PDF report"
+              >
+                <FileDown className="w-4 h-4" /> Download PDF
+              </a>
             </div>
           </div>
 

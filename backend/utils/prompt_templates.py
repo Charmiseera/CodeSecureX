@@ -1,34 +1,28 @@
 def vulnerability_analysis_prompt(code: str, language: str) -> str:
     """
-    Generates a structured prompt instructing Gemini to return a JSON array
-    of vulnerability objects. The response must be parseable JSON — no prose.
+    Generates a structured prompt instructing the LLM to return a JSON array
+    of vulnerability objects.
     """
     return f"""You are a senior application security engineer performing a code security audit.
 
 Analyze the following {language} code for security vulnerabilities.
 
-Return ONLY a valid JSON array (no markdown, no prose, no code fences) with this exact structure:
+CRITICAL: Return ONLY a valid JSON array. Do not include any conversational text, explanations outside the JSON, or markdown fences. No preamble ("Here is the JSON...") or postscript.
+
+Structure:
 [
   {{
-    "type": "<vulnerability name, e.g. SQL Injection>",
-    "severity": "<one of: Low | Medium | High | Critical>",
-    "explanation": "<clear explanation of why this is a vulnerability>",
-    "fix": "<concrete fix recommendation>"
+    "type": "<vulnerability name>",
+    "severity": "<Low|Medium|High|Critical>",
+    "explanation": "<detailed explanation with line references>",
+    "fix": "<detailed fix steps and code snippet>"
   }}
 ]
 
-If there are NO vulnerabilities, return an empty array: []
-
-Supported severity levels:
-- Low: minor issues, low risk
-- Medium: potential risk under certain conditions
-- High: likely exploitable, needs immediate attention
-- Critical: actively exploitable, must fix before deployment
+If there are multiple issues, treat each thoroughly. If NO vulnerabilities, return: []
 
 Code to analyze:
-```{language}
 {code}
-```
 """
 
 
