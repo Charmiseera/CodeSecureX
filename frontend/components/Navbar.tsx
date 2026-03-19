@@ -69,7 +69,7 @@ export function Navbar() {
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[hsl(215,16%,65%)] bg-[hsl(222,47%,10%)] border border-[hsl(222,47%,18%)]">
                   <User className="w-3.5 h-3.5 text-[hsl(210,100%,56%)]" />
                   <span className="font-medium">{user.username}</span>
-                  {user.role === "admin" && (
+                  {user.role === "admin" && user.username.toLowerCase() !== "admin" && (
                     <span className="text-[10px] bg-[hsl(210,100%,56%)/0.2] text-[hsl(210,100%,70%)] px-1.5 py-0.5 rounded-full font-semibold tracking-wide uppercase">
                       admin
                     </span>
