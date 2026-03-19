@@ -109,53 +109,73 @@ export default function DashboardPage() {
         </div>
       ) : analytics && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <StatCard label="Total Scans"    value={analytics.total_scans}   icon={ScanLine}      color="hsl(210,100%,56%)" />
+          <StatCard label={isAdmin ? "Total Platform Scans" : "Total Scans"}    value={analytics.total_scans}   icon={ScanLine}      color="hsl(210,100%,56%)" />
           <StatCard label="Total Users"    value={analytics.total_users}   icon={Shield}        color="hsl(142,71%,45%)" />
           <StatCard label="Active Users"   value={analytics.active_users}  icon={AlertTriangle} color="hsl(38,92%,50%)" />
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Scans */}
-        <div className="glass rounded-2xl p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[hsl(215,16%,55%)]" />
-              <h2 className="font-semibold">Recent Scans</h2>
+        {/* Recent Scans - Only for Users */}
+        {!isAdmin && (
+          <div className="glass rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[hsl(215,16%,55%)]" />
+                <h2 className="font-semibold">Your Recent Scans</h2>
+              </div>
+              <Link href="/scan" className="text-xs text-[hsl(210,100%,56%)] hover:underline">
+                New Scan →
+              </Link>
             </div>
-            <Link href="/scan" className="text-xs text-[hsl(210,100%,56%)] hover:underline">
-              New Scan →
-            </Link>
-          </div>
 
-          {loading ? (
-            <div className="space-y-2">
-              {[1,2,3,4].map(i => <div key={i} className="h-12 rounded-xl skeleton" />)}
-            </div>
-          ) : history.length === 0 ? (
-            <p className="text-sm text-[hsl(215,16%,55%)] py-4 text-center">No scans yet. <Link href="/scan" className="text-[hsl(210,100%,56%)] underline">Run your first scan</Link></p>
-          ) : (
-            <div className="space-y-2">
-              {history.map((s) => (
-                <div key={s.scan_id} className="flex items-center justify-between p-3 rounded-xl bg-[hsl(222,47%,8%)] hover:bg-[hsl(222,47%,10%)] transition-colors">
-                  <div>
-                    <p className="text-sm font-medium capitalize">{s.language}</p>
-                    <p className="text-xs text-[hsl(215,16%,55%)]">
-                      {new Date(s.created_at).toLocaleString()}
-                    </p>
+            {loading ? (
+              <div className="space-y-2">
+                {[1,2,3,4].map(i => <div key={i} className="h-12 rounded-xl skeleton" />)}
+              </div>
+            ) : history.length === 0 ? (
+              <p className="text-sm text-[hsl(215,16%,55%)] py-4 text-center">No scans yet. <Link href="/scan" className="text-[hsl(210,100%,56%)] underline">Run your first scan</Link></p>
+            ) : (
+              <div className="space-y-2">
+                {history.map((s) => (
+                  <div key={s.scan_id} className="flex items-center justify-between p-3 rounded-xl bg-[hsl(222,47%,8%)] hover:bg-[hsl(222,47%,10%)] transition-colors">
+                    <div>
+                      <p className="text-sm font-medium capitalize">{s.language}</p>
+                      <p className="text-xs text-[hsl(215,16%,55%)]">
+                        {new Date(s.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                      s.vulnerability_count === 0 ? "badge-low" :
+                      s.vulnerability_count <= 2  ? "badge-medium" :
+                                                    "badge-high"
+                    }`}>
+                      {s.vulnerability_count} issue{s.vulnerability_count !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                    s.vulnerability_count === 0 ? "badge-low" :
-                    s.vulnerability_count <= 2  ? "badge-medium" :
-                                                  "badge-high"
-                  }`}>
-                    {s.vulnerability_count} issue{s.vulnerability_count !== 1 ? "s" : ""}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Audit Log / Admin Action History could go here for admins in the future */}
+        {isAdmin && (
+          <div className="glass rounded-2xl p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[hsl(215,16%,55%)]" />
+              <h2 className="font-semibold">Platform Management</h2>
             </div>
-          )}
-        </div>
+            <p className="text-sm text-[hsl(215,16%,55%)]">
+              Welcome to the Admin Dashboard. Use the <Link href="/admin" className="text-[hsl(210,100%,56%)] hover:underline font-medium">Admin Panel</Link> to manage users and view detailed system logs.
+            </p>
+            <div className="pt-2">
+               <Link href="/admin" className="inline-flex items-center justify-center px-4 py-2 bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,48%)] text-white text-sm font-semibold rounded-xl transition-all">
+                 Go to Admin Panel
+               </Link>
+            </div>
+          </div>
+        )}
 
         {/* Top Vulnerabilities */}
         <div className="glass rounded-2xl p-5 space-y-4">

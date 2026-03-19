@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchUsers, suspendUser, fetchAnalytics } from "@/services/api";
+import { fetchUsers, suspendUser, unsuspendUser, fetchAnalytics } from "@/services/api";
 import type { AdminAnalytics } from "@/services/api";
-import { Settings, Users, TrendingUp, UserX, RefreshCw, ShieldAlert } from "lucide-react";
+import { Settings, Users, TrendingUp, UserX, UserCheck, RefreshCw, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
 import { withAuth } from "@/lib/withAuth";
 
@@ -32,10 +32,23 @@ function AdminPage() {
     setSuspending(id);
     try {
       await suspendUser(id);
-      toast.success(`User ${id} suspended.`);
+      toast.success("User suspended.");
       setUsers((prev) => prev.map((u) => u.id === id ? { ...u, is_active: false } : u));
     } catch {
       toast.error("Failed to suspend user.");
+    } finally {
+      setSuspending(null);
+    }
+  };
+
+  const handleUnsuspend = async (id: string) => {
+    setSuspending(id);
+    try {
+      await unsuspendUser(id);
+      toast.success("User restored.");
+      setUsers((prev) => prev.map((u) => u.id === id ? { ...u, is_active: true } : u));
+    } catch {
+      toast.error("Failed to restore user.");
     } finally {
       setSuspending(null);
     }
@@ -120,16 +133,25 @@ function AdminPage() {
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-5 py-3">
-                    {u.is_active && (
-                      <button
-                        onClick={() => handleSuspend(u.id)}
-                        disabled={suspending === u.id}
-                        className="flex items-center gap-1 text-xs text-[hsl(0,72%,51%)] hover:underline disabled:opacity-50"
-                      >
-                        <UserX className="w-3.5 h-3.5" />
-                        {suspending === u.id ? "…" : "Suspend"}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => u.is_active ? handleSuspend(u.id) : handleUnsuspend(u.id)}
+                      disabled={suspending === u.id}
+                      className={`flex items-center gap-1 text-xs transition-colors hover:underline disabled:opacity-50 ${
+                        u.is_active ? "text-[hsl(0,72%,51%)]" : "text-[hsl(142,71%,45%)]"
+                      }`}
+                    >
+                      {u.is_active ? (
+                        <>
+                          <UserX className="w-3.5 h-3.5" />
+                          {suspending === u.id ? "…" : "Suspend"}
+                        </>
+                      ) : (
+                        <>
+                          <UserCheck className="w-3.5 h-3.5" />
+                          {suspending === u.id ? "…" : "Restore"}
+                        </>
+                      )}
+                    </button>
                   </td>
                 </tr>
               ))}

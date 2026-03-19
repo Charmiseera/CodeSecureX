@@ -7,6 +7,7 @@ from beanie import PydanticObjectId
 
 from models.user_model import User
 from models.scan_model import Scan
+from models.admin_log import AdminLog
 from schemas.user_schema import UserResponse, SuspendRequest
 from utils.dependencies import require_admin
 
@@ -32,7 +33,7 @@ async def list_users(_: User = Depends(require_admin)):
 
 
 @router.post("/suspend", status_code=status.HTTP_200_OK)
-async def suspend_user(request: SuspendRequest, _: User = Depends(require_admin)):
+async def suspend_user(request: SuspendRequest, admin: User = Depends(require_admin)):
     """Suspend a user account. Admin only."""
     try:
         oid = PydanticObjectId(request.user_id)
@@ -42,12 +43,51 @@ async def suspend_user(request: SuspendRequest, _: User = Depends(require_admin)
     user = await User.get(oid)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
     if not user.is_active:
         return {"message": f"User {request.user_id} is already suspended"}
 
     user.is_active = False
     await user.save()
+
+    # Create Audit Log
+    log = AdminLog(
+        admin_id=admin.id,
+        action="suspend_user",
+        target_user_id=user.id
+    )
+    await log.insert()
+
     return {"message": f"User {request.user_id} has been suspended"}
+
+
+@router.post("/unsuspend", status_code=status.HTTP_200_OK)
+async def unsuspend_user(request: SuspendRequest, admin: User = Depends(require_admin)):
+    """Restore a suspended user account. Admin only."""
+    try:
+        oid = PydanticObjectId(request.user_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user ID")
+
+    user = await User.get(oid)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    if user.is_active:
+        return {"message": f"User {request.user_id} is already active"}
+
+    user.is_active = True
+    await user.save()
+
+    # Create Audit Log
+    log = AdminLog(
+        admin_id=admin.id,
+        action="unsuspend_user",
+        target_user_id=user.id
+    )
+    await log.insert()
+
+    return {"message": f"User {request.user_id} has been restored"}
 
 
 @router.get("/analytics")

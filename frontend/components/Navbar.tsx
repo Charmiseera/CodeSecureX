@@ -21,7 +21,8 @@ export function Navbar() {
 
   const links = [
     ...publicLinks,
-    ...(user ? authedLinks : []),
+    ...(user && user.role !== "admin" ? [{ href: "/scan", label: "Scan Code", icon: Code2 }] : []),
+    ...(user ? [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin", icon: Settings }] : []),
   ];
 

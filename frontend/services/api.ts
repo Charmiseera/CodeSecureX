@@ -125,7 +125,10 @@ export const fetchAnalytics = () =>
 export const fetchUsers = () =>
   api.get<{ id: string; username: string; email: string; role: string; is_active: boolean; created_at: string }[]>("/admin/users").then((r) => r.data);
 
-export const suspendUser = (user_id: string) =>
-  api.post("/admin/suspend", { user_id }).then((r) => r.data);
+export const suspendUser = (userId: string) =>
+  api.post("/admin/suspend", { user_id: userId }).then((r) => r.data);
+
+export const unsuspendUser = (userId: string) =>
+  api.post("/admin/unsuspend", { user_id: userId }).then((r) => r.data);
 
 export default api;

@@ -9,6 +9,7 @@ from database.connection import get_client, get_database, MONGODB_URL
 from models.scan_model import Scan
 from models.report_model import Report
 from models.user_model import User
+from models.admin_log import AdminLog
 from routes import scan, report, admin
 from routes.auth import router as auth_router
 from services.vulnerability_service import get_scan_history
@@ -24,7 +25,7 @@ async def lifespan(app: FastAPI):
     client = get_client()
     await init_beanie(
         database=get_database(),
-        document_models=[Scan, Report, User],
+        document_models=[Scan, Report, User, AdminLog],
     )
     logger.info("Beanie ODM initialised — collections: scans, reports, users")
     yield
