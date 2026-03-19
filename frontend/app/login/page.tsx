@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Shield, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
-import { loginApi } from "@/services/api";
+import { loginApi, forgotPassword } from "@/services/api";
 import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
@@ -13,22 +13,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd]   = useState(false);
   const [loading, setLoading]   = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return toast.error("Please fill in all fields.");
+    if (!email) return toast.error("Please enter your email.");
+    
     setLoading(true);
     try {
-      const { access_token } = await loginApi(email, password);
-      await login(access_token);
-      toast.success("Welcome back!");
-      router.push("/scan");
+      if (isForgot) {
+        await forgotPassword(email);
+        toast.success("Reset link sent if email exists.");
+        setIsForgot(false);
+      } else {
+        if (!password) {
+          setLoading(false);
+          return toast.error("Please enter your password.");
+        }
+        const { access_token } = await loginApi(email, password);
+        await login(access_token);
+        toast.success("Welcome back!");
+        router.push("/dashboard");
+      }
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        "Login failed. Check your credentials.";
+        (isForgot ? "Failed to send reset email." : "Login failed. Check your credentials.");
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -50,8 +62,14 @@ export default function LoginPage() {
             <div className="w-12 h-12 bg-[hsl(210,100%,56%)] rounded-xl flex items-center justify-center glow mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-[hsl(213,31%,91%)]">Welcome back</h1>
-            <p className="text-sm text-[hsl(215,16%,47%)] mt-1">Sign in to your SecureCodeAI account</p>
+            <h1 className="text-2xl font-bold text-[hsl(213,31%,91%)]">
+              {isForgot ? "Reset Password" : "Welcome back"}
+            </h1>
+            <p className="text-sm text-center text-[hsl(215,16%,47%)] mt-1">
+              {isForgot 
+                ? "Enter your email to receive a reset link" 
+                : "Sign in to your SecureCodeAI account"}
+            </p>
           </div>
 
           {/* Form */}
@@ -75,31 +93,42 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label htmlFor="login-password" className="text-sm font-medium text-[hsl(215,16%,65%)]">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(215,16%,40%)]" />
-                <input
-                  id="login-password"
-                  type={showPwd ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 bg-[hsl(222,47%,11%)] border border-[hsl(222,47%,18%)] text-[hsl(213,31%,91%)] placeholder:text-[hsl(215,16%,35%)] rounded-xl text-sm outline-none focus:border-[hsl(210,100%,56%)] focus:ring-1 focus:ring-[hsl(210,100%,56%)/0.3] transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(215,16%,40%)] hover:text-[hsl(215,16%,65%)] transition-colors"
-                >
-                  {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {/* Password - Hidden in Forgot mode */}
+            {!isForgot && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="login-password" className="text-sm font-medium text-[hsl(215,16%,65%)]">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsForgot(true)}
+                    className="text-xs text-[hsl(210,100%,65%)] hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(215,16%,40%)]" />
+                  <input
+                    id="login-password"
+                    type={showPwd ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[hsl(222,47%,11%)] border border-[hsl(222,47%,18%)] text-[hsl(213,31%,91%)] placeholder:text-[hsl(215,16%,35%)] rounded-xl text-sm outline-none focus:border-[hsl(210,100%,56%)] focus:ring-1 focus:ring-[hsl(210,100%,56%)/0.3] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPwd((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(215,16%,40%)] hover:text-[hsl(215,16%,65%)] transition-colors"
+                  >
+                    {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Submit */}
             <button
@@ -111,21 +140,34 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Signing in…
+                  {isForgot ? "Sending..." : "Signing in..."}
                 </>
               ) : (
-                "Sign in"
+                isForgot ? "Send Reset Link" : "Sign in"
               )}
             </button>
+
+            {isForgot && (
+              <button
+                type="button"
+                onClick={() => setIsForgot(false)}
+                className="w-full flex items-center justify-center gap-2 text-sm text-[hsl(215,16%,47%)] hover:text-white transition-colors py-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to sign in
+              </button>
+            )}
           </form>
 
           {/* Footer */}
-          <p className="text-sm text-center text-[hsl(215,16%,47%)] mt-6">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[hsl(210,100%,65%)] hover:underline font-medium">
-              Create one
-            </Link>
-          </p>
+          {!isForgot && (
+            <p className="text-sm text-center text-[hsl(215,16%,47%)] mt-6">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="text-[hsl(210,100%,65%)] hover:underline font-medium">
+                Create one
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>

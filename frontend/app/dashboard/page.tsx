@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getScanHistory, fetchAnalytics } from "@/services/api";
 import type { ScanHistoryItem, AdminAnalytics } from "@/services/api";
+import { useAuth } from "@/lib/auth-context";
 import {
   LayoutDashboard, ScanLine, Shield, AlertTriangle, Clock, RefreshCw,
 } from "lucide-react";
@@ -46,6 +47,9 @@ function SeverityBar({ type, count, max }: { type: string; count: number; max: n
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [history, setHistory]     = useState<ScanHistoryItem[]>([]);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [loading, setLoading]     = useState(true);
@@ -55,7 +59,10 @@ export default function DashboardPage() {
     setLoading(true);
     setError(false);
     try {
-      const [h, a] = await Promise.all([getScanHistory(10), fetchAnalytics()]);
+      const [h, a] = await Promise.all([
+        getScanHistory(10),
+        isAdmin ? fetchAnalytics() : Promise.resolve(null),
+      ]);
       setHistory(h);
       setAnalytics(a);
     } catch {
@@ -65,7 +72,8 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  // Re-run load when role is resolved so we don't call admin API before knowing role
+  useEffect(() => { if (user !== undefined) load(); }, [user]);
 
   const maxCount = analytics?.top_vulnerabilities[0]?.count ?? 1;
 

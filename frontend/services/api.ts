@@ -95,6 +95,12 @@ export const loginApi = (email: string, password: string) =>
 export const getMe = () =>
   api.get<AuthUser>("/auth/me").then((r) => r.data);
 
+export const forgotPassword = (email: string) =>
+  api.post("/auth/forgot-password", { email }).then((r) => r.data);
+
+export const resetPassword = (token: string, newPassword: string) =>
+  api.post("/auth/reset-password", { token, new_password: newPassword }).then((r) => r.data);
+
 // ─── Scan API ─────────────────────────────────────────────────────────────────
 
 export const scanCode = (code: string, language: Language) =>

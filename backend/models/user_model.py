@@ -13,6 +13,8 @@ class User(Document):
     hashed_password: str
     role: Literal["user", "admin"] = "user"
     is_active: bool = True
+    reset_token: str | None = None
+    reset_token_expires: datetime | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:

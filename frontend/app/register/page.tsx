@@ -28,7 +28,7 @@ export default function RegisterPage() {
       const { access_token } = await loginApi(email, password);
       await login(access_token);
       toast.success("Account created! Welcome to SecureCodeAI 🎉");
-      router.push("/scan");
+      router.push("/dashboard");
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??

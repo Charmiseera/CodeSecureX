@@ -5,10 +5,11 @@ import { fetchUsers, suspendUser, fetchAnalytics } from "@/services/api";
 import type { AdminAnalytics } from "@/services/api";
 import { Settings, Users, TrendingUp, UserX, RefreshCw, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
+import { withAuth } from "@/lib/withAuth";
 
 type User = { id: string; username: string; email: string; role: string; is_active: boolean; created_at: string };
 
-export default function AdminPage() {
+function AdminPage() {
   const [users, setUsers]         = useState<User[]>([]);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [loading, setLoading]     = useState(true);
@@ -157,3 +158,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+export default withAuth(AdminPage, "admin");
