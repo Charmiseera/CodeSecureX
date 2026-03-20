@@ -2,52 +2,63 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, Code2, LayoutDashboard, FileText, Settings } from "lucide-react";
+import { Bell } from "lucide-react";
 
 const links = [
-  { href: "/",          label: "Home",      icon: Shield },
-  { href: "/scan",      label: "Scan Code", icon: Code2 },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/reports",   label: "Reports",   icon: FileText },
-  { href: "/admin",     label: "Admin",     icon: Settings },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/scan",      label: "Scan" },
+  { href: "/reports",   label: "Reports" },
+  { href: "/admin",     label: "Admin" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 glass border-b border-[hsl(222,47%,14%)]">
-      <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative w-8 h-8 bg-[hsl(210,100%,56%)] rounded-lg flex items-center justify-center glow transition-transform group-hover:scale-110">
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-lg tracking-tight">
-            Secure<span className="text-[hsl(210,100%,56%)]">Code</span>AI
-          </span>
-        </Link>
+    <nav className="fixed top-0 left-0 right-0 z-50 h-16 bg-[hsl(226,12%,10%)] border-b border-white/5">
+      <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+        
+        <div className="flex items-center gap-8">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-1 group">
+            <span className="font-bold text-lg tracking-tight text-white">
+              SecureCode<span className="text-[#aca1fd] opacity-80">AI</span>
+            </span>
+          </Link>
 
-        {/* Nav Links */}
-        <div className="flex items-center gap-1">
-          {links.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  active
-                    ? "bg-[hsl(210,100%,56%)/0.15] text-[hsl(210,100%,56%)] border border-[hsl(210,100%,56%)/0.3]"
-                    : "text-[hsl(215,16%,55%)] hover:text-[hsl(213,31%,91%)] hover:bg-[hsl(222,47%,12%)]"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </Link>
-            );
-          })}
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-6 mt-1">
+            {links.map(({ href, label }) => {
+              const active = pathname === href || pathname === "/" && href === "/dashboard";
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`text-sm font-medium transition-all pb-4 border-b-2 ${
+                    active
+                      ? "text-white border-[#aca1fd]"
+                      : "text-zinc-500 border-transparent hover:text-zinc-300"
+                  }`}
+                  style={{ marginBottom: "-17px" }} // aligned with bottom border
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Right side icons */}
+        <div className="flex items-center gap-4">
+          <button className="text-zinc-500 hover:text-white transition-colors">
+            <Bell className="w-5 h-5" />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
+            {/* Avatar placeholder */}
+            <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=e0e0e0" alt="Avatar" className="w-full h-full object-cover" />
+          </div>
+        </div>
+
       </div>
     </nav>
   );

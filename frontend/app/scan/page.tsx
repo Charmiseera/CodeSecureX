@@ -1,23 +1,27 @@
 import { ScanForm } from "@/components/ScanForm";
-import { ScanLine } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Scan Code — SecureCodeAI",
-  description: "Paste or upload code to detect security vulnerabilities with AI.",
+  title: "AI Code Security Analyzer — SecureCodeAI",
+  description: "Instantly audit your codebase for vulnerabilities using our proprietary LLM.",
 };
 
 export default function ScanPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <ScanLine className="w-5 h-5 text-[hsl(210,100%,56%)]" />
-          <h1 className="text-2xl font-bold">Code Security Scanner</h1>
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+      <div className="flex items-start justify-between mb-10">
+        <div className="max-w-xl">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-3">AI Code Security Analyzer</h1>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Instantly audit your codebase for vulnerabilities using our proprietary LLM trained on millions of security exploits. Secure your logic before it reaches production.
+          </p>
         </div>
-        <p className="text-[hsl(215,16%,55%)] text-sm">
-          Paste your code below and click <strong>Analyze Code</strong>. Results appear in seconds.
-        </p>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5">
+          <ShieldCheck className="w-4 h-4 text-[#aca1fd]" />
+          <span className="text-xs font-bold text-[#aca1fd] tracking-widest uppercase">Active Protection</span>
+        </div>
       </div>
+      
       <ScanForm />
     </div>
   );

@@ -1,7 +1,7 @@
 from typing import Literal
 from pydantic import BaseModel, field_validator
 
-Language = Literal["python", "javascript", "java", "php"]
+Language = Literal["python", "javascript", "java", "php", "c", "cpp"]
 SeverityLevel = Literal["Low", "Medium", "High", "Critical"]
 
 
@@ -23,6 +23,7 @@ class ScanRequest(BaseModel):
 class VulnerabilityItem(BaseModel):
     type: str
     severity: SeverityLevel
+    vulnerable_code: str = ""
     explanation: str
     fix: str
 

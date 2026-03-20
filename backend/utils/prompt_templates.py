@@ -14,6 +14,7 @@ Structure:
   {{
     "type": "<vulnerability name>",
     "severity": "<Low|Medium|High|Critical>",
+    "vulnerable_code": "<the exact lines of flawed code>",
     "explanation": "<detailed explanation with line references>",
     "fix": "<detailed fix steps and code snippet>"
   }}

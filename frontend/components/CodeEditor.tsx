@@ -20,6 +20,8 @@ const LANGUAGES: { value: Language; label: string; monacoLang: string }[] = [
   { value: "python",     label: "Python",     monacoLang: "python" },
   { value: "javascript", label: "JavaScript", monacoLang: "javascript" },
   { value: "java",       label: "Java",       monacoLang: "java" },
+  { value: "c",          label: "C",          monacoLang: "c" },
+  { value: "cpp",        label: "C++",        monacoLang: "cpp" },
   { value: "php",        label: "PHP",        monacoLang: "php" },
 ];
 
@@ -57,6 +59,36 @@ public class UserDAO {
         );
         return mapToUser(rs);
     }
+}
+`,
+  c: `// Vulnerable C
+#include <stdio.h>
+#include <string.h>
+
+void vulnerable_function() {
+    char buffer[50];
+    // Buffer overflow vulnerability
+    printf("Enter your name: ");
+    gets(buffer); 
+    printf("Hello %s\\n", buffer);
+}
+
+int main() {
+    vulnerable_function();
+    return 0;
+}
+`,
+  cpp: `// Vulnerable C++
+#include <iostream>
+#include <cstring>
+
+int main() {
+    char* data = new char[10];
+    // Memory Leak (missing delete) and Buffer Overflow
+    strcpy(data, "This is way too long for a 10 byte buffer");
+    std::cout << data << std::endl;
+    // Missing: delete[] data;
+    return 0;
 }
 `,
   php: `<?php

@@ -8,12 +8,13 @@ const api = axios.create({
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type Language = "python" | "javascript" | "java" | "php";
+export type Language = "python" | "javascript" | "java" | "php" | "c" | "cpp";
 export type Severity = "Low" | "Medium" | "High" | "Critical";
 
 export interface Vulnerability {
   type: string;
   severity: Severity;
+  vulnerable_code?: string;
   explanation: string;
   fix: string;
 }

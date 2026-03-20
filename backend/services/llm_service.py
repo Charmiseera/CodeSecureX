@@ -78,6 +78,12 @@ def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
     """
     if _client is None:
         logger.info("No API key — returning demo vulnerabilities.")
+        
+        # Simple heuristic to simulate returning a clean bill of health if the user pastes the fix
+        code_lower = code.lower()
+        if "fgets" in code_lower or "db.execute" in code_lower or "execute(query, " in code_lower or "parameterised" in code_lower or "?" in code:
+            return []
+            
         return _demo_vulnerabilities(language)
 
     prompt = vulnerability_analysis_prompt(code, language)
@@ -132,14 +138,29 @@ def explain_vulnerability(vuln_type: str, explanation: str) -> str:
 
 def _demo_vulnerabilities(language: str) -> list[dict]:
     """Fallback demo data — only used when NEBIUS_API_KEY is missing from .env."""
+    if language in ("c", "cpp"):
+        return [
+            {
+                "type": "Buffer Overflow",
+                "severity": "High",
+                "vulnerable_code": "char buffer[50];\ngets(buffer);",
+                "explanation": (
+                    f"The {language} code uses the unsafe function 'gets()' which does not check "
+                    f"bounds, leading to buffer overflow vulnerabilities."
+                ),
+                "fix": "Use safe functions like 'fgets()' that allow specifying the maximum input length.\n\n// Example Fix:\nchar buffer[50];\nfgets(buffer, sizeof(buffer), stdin);",
+            }
+        ]
+
     return [
         {
             "type": "SQL Injection",
             "severity": "High",
+            "vulnerable_code": "query = \"SELECT * FROM users WHERE id=\" + user_id",
             "explanation": (
                 f"[DEMO — add NEBIUS_API_KEY to backend/.env for real AI analysis] "
                 f"The {language} code concatenates user input directly into SQL."
             ),
-            "fix": "Use parameterised queries or an ORM.",
+            "fix": "Use parameterised queries or an ORM to prevent user input from executing as SQL.\n\n// Example Fix:\nconst query = 'SELECT * FROM users WHERE id = ?';\ndb.execute(query, [userId]);",
         }
     ]

@@ -2,32 +2,32 @@
 
 @layer base {
   :root {
-    --background: 222 47% 5%;
-    --foreground: 213 31% 91%;
-    --card: 222 47% 8%;
-    --card-foreground: 213 31% 91%;
-    --popover: 222 47% 8%;
-    --popover-foreground: 213 31% 91%;
-    --primary: 210 100% 56%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 47% 12%;
-    --secondary-foreground: 213 31% 80%;
-    --muted: 222 47% 12%;
-    --muted-foreground: 215 16% 55%;
-    --accent: 210 100% 56%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 222 47% 14%;
-    --input: 222 47% 12%;
-    --ring: 210 100% 56%;
-    --radius: 0.625rem;
+    --background: 226 12% 10%;
+    --foreground: 220 14% 96%;
+    --card: 226 12% 14%;
+    --card-foreground: 220 14% 96%;
+    --popover: 226 12% 14%;
+    --popover-foreground: 220 14% 96%;
+    --primary: 250 85% 75%;
+    --primary-foreground: 226 12% 10%;
+    --secondary: 226 12% 18%;
+    --secondary-foreground: 220 14% 80%;
+    --muted: 226 12% 18%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 250 85% 75%;
+    --accent-foreground: 226 12% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 14% 96%;
+    --border: 226 12% 20%;
+    --input: 226 12% 18%;
+    --ring: 250 85% 75%;
+    --radius: 1.25rem;
 
     /* severity colours */
-    --severity-low: 142 71% 45%;
-    --severity-medium: 38 92% 50%;
-    --severity-high: 0 72% 51%;
-    --severity-critical: 0 100% 30%;
+    --severity-low: 210 100% 70%;
+    --severity-medium: 280 80% 65%;
+    --severity-high: 0 84% 60%;
+    --severity-critical: 0 100% 50%;
   }
 }
 

@@ -1,0 +1,71 @@
+.dashboard-container {
+  width: 100%;
+  height: 600px;
+  background: radial-gradient(circle at center, rgba(172, 161, 253, 0.05) 0%, transparent 70%);
+  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08); /* slight border */
+}
+
+.overlay-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  pointer-events: none; /* Let clicks pass through to 3D */
+  z-index: 10;
+}
+
+.dashboard-title {
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 1.25rem;
+  opacity: 0.8;
+}
+
+/* Glassmorphism Stats Card */
+.stats-card-3d {
+  background: rgba(30,30,36, 0.85); /* fallback to dark */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  width: 240px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.stats-card-3d:hover {
+  transform: translateY(-4px);
+  border-color: rgba(172, 161, 253, 0.4);
+  box-shadow: 0 12px 40px rgba(172, 161, 253, 0.15);
+}
+
+.card-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.card-trend {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
