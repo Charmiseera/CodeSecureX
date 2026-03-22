@@ -71,7 +71,8 @@ logs/
 # ─────────────────────────────────────────────────────────
 # Reports / Generated Files
 # ─────────────────────────────────────────────────────────
-reports/
+backend/reports/
+/reports/
 generated_reports/
 analysis_results/
 *.pdf
