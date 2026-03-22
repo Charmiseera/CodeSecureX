@@ -87,7 +87,7 @@ export default function ProfileCard({ profile, token, onAvatarUpdated }: Props) 
           {profile.avatar_url ? (
             <Image 
               src={profile.avatar_url} 
-              alt={profile.full_name || profile.username || "Avatar"} 
+              alt={profile.full_name || "Avatar"} 
               width={112} 
               height={112} 
               className="object-cover w-full h-full"
@@ -134,7 +134,7 @@ export default function ProfileCard({ profile, token, onAvatarUpdated }: Props) 
       {/* ── User Info ── */}
       <div className="space-y-1 mt-2">
         <h2 className="text-xl font-bold text-white tracking-tight">
-          {profile.full_name || profile.username || "User"}
+          {profile.full_name || "User"}
         </h2>
         <p className="text-sm text-[hsl(215,16%,55%)]">
           {profile.email}

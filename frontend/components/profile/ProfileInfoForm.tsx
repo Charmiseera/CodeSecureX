@@ -13,13 +13,13 @@ interface Props {
 }
 
 export default function ProfileInfoForm({ profile, token, onProfileUpdated }: Props) {
-  const [fullName, setFullName] = useState(profile.full_name || profile.username || "");
+  const [fullName, setFullName] = useState(profile.full_name || "");
   const [email, setEmail] = useState(profile.email);
   
   const [isLoading, setIsLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const hasChanges = fullName !== (profile.full_name || profile.username || "") || email !== profile.email;
+  const hasChanges = fullName !== (profile.full_name || "") || email !== profile.email;
 
   const handleSave = async () => {
     if (!fullName.trim() || !email.trim()) return;
