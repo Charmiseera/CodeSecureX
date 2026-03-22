@@ -48,7 +48,7 @@ function AdminScanPage({ params }: { params: any }) {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found");
         
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
         const res = await fetch(`${baseUrl}/admin/scans/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });

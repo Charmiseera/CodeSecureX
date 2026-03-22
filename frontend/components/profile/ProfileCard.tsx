@@ -6,7 +6,7 @@ import { Camera, Loader2, Calendar } from "lucide-react";
 import type { ProfileData } from "@/lib/profile-types";
 
 // Note: Use absolute URL for the API so it goes to FastAPI correctly in development
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
 
 interface Props {
   profile: ProfileData;
@@ -161,3 +161,4 @@ export default function ProfileCard({ profile, token, onAvatarUpdated }: Props) 
     </div>
   );
 }
+

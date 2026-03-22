@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
 
 interface Props {
   token: string;
@@ -188,3 +188,4 @@ export default function PasswordChangeForm({ token }: Props) {
     </div>
   );
 }
+

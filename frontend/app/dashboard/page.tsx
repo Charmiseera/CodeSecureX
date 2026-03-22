@@ -70,7 +70,7 @@ export default async function DashboardPage() {
 
   try {
     // Server-to-server fetch (bypassing browser CORS) directly to FastAPI backend
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
     const res = await fetch(`${baseUrl}/dashboard/summary`, { 
       cache: "no-store" 
     });
@@ -149,3 +149,4 @@ export default async function DashboardPage() {
     </>
   );
 }
+

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import type { ProfileData } from "@/lib/profile-types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
 
 interface Props {
   profile: ProfileData;
@@ -131,3 +131,4 @@ export default function ProfileInfoForm({ profile, token, onProfileUpdated }: Pr
     </div>
   );
 }
+

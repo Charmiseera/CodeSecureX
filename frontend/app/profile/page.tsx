@@ -11,7 +11,7 @@ import ProfileInfoForm from "@/components/profile/ProfileInfoForm";
 import PasswordChangeForm from "@/components/profile/PasswordChangeForm";
 import DeleteAccountPanel from "@/components/profile/DeleteAccountPanel";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
 
 type Tab = "info" | "security" | "delete";
 
@@ -150,3 +150,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

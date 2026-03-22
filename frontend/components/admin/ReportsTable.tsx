@@ -23,7 +23,7 @@ export function ReportsTable() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
       const params = new URLSearchParams({
         page: String(currentPage),
         limit: "20",
@@ -171,3 +171,4 @@ export function ReportsTable() {
     </>
   );
 }
+

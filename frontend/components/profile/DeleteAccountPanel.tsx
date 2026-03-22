@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
 
 interface Props {
   token: string;
@@ -95,3 +95,4 @@ export default function DeleteAccountPanel({ token }: Props) {
     </div>
   );
 }
+
