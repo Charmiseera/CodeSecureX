@@ -1,6 +1,6 @@
 import os
 import logging
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import FileResponse
 from beanie import PydanticObjectId
 
@@ -12,14 +12,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/report", tags=["Report"])
 
 
+from utils.dependencies import get_current_user
+from models.user_model import User
+
 @router.post("/generate", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)
-async def generate_report(request: ReportRequest):
+async def generate_report(request: ReportRequest, current_user: User = Depends(get_current_user)):
     """
     Generate a PDF security report for a given scan_id.
     Returns the report_id and a URL to download the PDF.
     """
     try:
-        return await generate_pdf_report(scan_id=request.scan_id)
+        return await generate_pdf_report(scan_id=request.scan_id, user_id=current_user.id)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except Exception:
@@ -31,7 +34,7 @@ async def generate_report(request: ReportRequest):
 
 
 @router.get("/{scan_id}")
-async def download_report(scan_id: str):
+async def download_report(scan_id: str, current_user: User = Depends(get_current_user)):
     """Download a PDF report by scan ID. Generates on the fly if it doesn't exist."""
     try:
         oid = PydanticObjectId(scan_id)

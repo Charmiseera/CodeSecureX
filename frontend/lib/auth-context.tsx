@@ -24,7 +24,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
-  login: (token: string) => Promise<void>;
+  login: (token: string) => Promise<AuthUser | null>;
   logout: () => void;
 }
 
@@ -46,11 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       setUser(res.data);
       setToken(jwt);
+      return res.data;
     } catch {
       // Token invalid/expired — clear storage
       localStorage.removeItem("token");
       setUser(null);
       setToken(null);
+      return null;
     }
   }, []);
 
@@ -67,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (jwt: string) => {
       localStorage.setItem("token", jwt);
-      await fetchMe(jwt);
+      return await fetchMe(jwt);
     },
     [fetchMe]
   );

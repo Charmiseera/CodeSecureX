@@ -13,10 +13,10 @@ router = APIRouter(prefix="/scan", tags=["Scan"])
 
 
 @router.post("/analyze", response_model=ScanResponse, status_code=status.HTTP_200_OK)
-async def analyze_code(request: ScanRequest, _: User = Depends(get_current_user)):
+async def analyze_code(request: ScanRequest, current_user: User = Depends(get_current_user)):
     """Submit code for vulnerability analysis. Requires authentication."""
     try:
-        return await run_scan(code=request.code, language=request.language)
+        return await run_scan(code=request.code, language=request.language, user_id=current_user.id)
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc))
     except Exception:

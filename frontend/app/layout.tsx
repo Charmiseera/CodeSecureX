@@ -5,9 +5,9 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "SecureCodeAI — LLM Vulnerability Scanner",
+  title: "CodeSecureX — LLM Vulnerability Scanner",
   description:
-    "Paste or upload code and instantly detect security vulnerabilities powered by AI. Get severity ratings, explanations, and fix suggestions.",
+    "Detect vulnerabilities using CodeSecureX in seconds. Paste or upload code and instantly detect security vulnerabilities powered by AI. Get severity ratings, explanations, and fix suggestions.",
   keywords: ["security", "vulnerability scanner", "AI", "code review", "OWASP"],
 };
 

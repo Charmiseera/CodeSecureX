@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
 import { VulnerabilityTable } from "@/components/VulnerabilityTable";
 import { Button } from "@/components/ui/button";
-import { scanCode, generateReport, downloadReportUrl } from "@/services/api";
+import { scanCode, generateReport, downloadReport } from "@/services/api";
 import type { Language, ScanResponse } from "@/services/api";
 import {
   Loader2, ScanLine, ShieldAlert, FileDown, CheckCircle,
@@ -58,6 +58,15 @@ export function ScanForm({ onScanComplete }: Props) {
     }
   };
 
+  const handleDownload = async () => {
+    if (!result) return;
+    try {
+      await downloadReport(result.scan_id);
+    } catch {
+      toast.error("Failed to download PDF.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Editor */}
@@ -102,15 +111,13 @@ export function ScanForm({ onScanComplete }: Props) {
             </div>
 
             <div className="flex items-center gap-2">
-              <a
-                href={downloadReportUrl(result.scan_id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-[hsl(142,71%,45%)/0.15] hover:bg-[hsl(142,71%,45%)/0.25] text-[hsl(142,71%,45%)] border border-[hsl(142,71%,45%)/0.3] rounded-lg text-sm font-medium transition-colors"
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-[hsl(142,71%,45%)/0.15] hover:bg-[hsl(142,71%,45%)/0.25] text-[hsl(142,71%,45%)] border border-[hsl(142,71%,45%)/0.3] rounded-lg text-sm font-medium transition-colors cursor-pointer"
                 title="Automatically generates and downloads the PDF report"
               >
                 <FileDown className="w-4 h-4" /> Download PDF
-              </a>
+              </button>
             </div>
           </div>
 

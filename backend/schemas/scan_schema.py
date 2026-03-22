@@ -28,9 +28,19 @@ class VulnerabilityItem(BaseModel):
     fixed_code: str | None = None   # Complete, copy-pasteable corrected code snippet
 
 
+class SeverityCounts(BaseModel):
+    high: int
+    medium: int
+    low: int
+
+
 class ScanResponse(BaseModel):
     scan_id: str          # MongoDB ObjectId as string
     vulnerabilities: list[VulnerabilityItem]
+    security_health_score: int | None = None
+    score_label: str | None = None
+    severity_counts: SeverityCounts | None = None
+    critical_paths: int | None = None
 
 
 class ScanHistoryItem(BaseModel):

@@ -1,8 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from beanie import init_beanie
 
 from database.connection import get_client, get_database, MONGODB_URL
@@ -12,6 +14,8 @@ from models.user_model import User
 from models.admin_log import AdminLog
 from routes import scan, report, admin
 from routes.auth import router as auth_router
+from routers.dashboard import router as dashboard_router
+from routers.profile import router as profile_router
 from services.vulnerability_service import get_scan_history
 
 logging.basicConfig(level=logging.INFO)
@@ -49,10 +53,16 @@ app.add_middleware(
 )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
-app.include_router(auth_router, prefix="/api")
-app.include_router(scan.router,   prefix="/api")
-app.include_router(report.router, prefix="/api")
-app.include_router(admin.router,  prefix="/api")
+app.include_router(auth_router,     prefix="/api")
+app.include_router(scan.router,     prefix="/api")
+app.include_router(report.router,   prefix="/api")
+app.include_router(admin.router,    prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+app.include_router(profile_router,  prefix="/api")
+
+STATIC_DIR = Path(__file__).parent / "static"
+STATIC_DIR.mkdir(exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 # ─── Top-level alias /api/history ─────────────────────────────────────────────

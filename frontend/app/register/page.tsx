@@ -27,7 +27,7 @@ export default function RegisterPage() {
       await register(username, email, password);
       const { access_token } = await loginApi(email, password);
       await login(access_token);
-      toast.success("Account created! Welcome to SecureCodeAI 🎉");
+      toast.success("Account created! Welcome to CodeSecureX 🎉");
       router.push("/dashboard");
     } catch (err: unknown) {
       const msg =
@@ -55,7 +55,7 @@ export default function RegisterPage() {
               <Shield className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-[hsl(213,31%,91%)]">Create account</h1>
-            <p className="text-sm text-[hsl(215,16%,47%)] mt-1">Join SecureCodeAI and start scanning</p>
+            <p className="text-sm text-[hsl(215,16%,47%)] mt-1">Join CodeSecureX and start scanning</p>
           </div>
 
           {/* Form */}

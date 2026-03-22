@@ -1,7 +1,8 @@
 "use client";
 
-import { downloadReportUrl } from "@/services/api";
+import { downloadReport } from "@/services/api";
 import { FileDown, FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface Props {
   reportId: string;
@@ -24,15 +25,19 @@ export function ReportViewer({ reportId, scanId, createdAt }: Props) {
         </div>
       </div>
 
-      <a
-        href={downloadReportUrl(reportId)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-1.5 px-4 py-2 bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,48%)] text-white rounded-xl text-sm font-medium transition-colors glow"
+      <button
+        onClick={async () => {
+          try {
+            await downloadReport(reportId);
+          } catch {
+            toast.error("Failed to download PDF report");
+          }
+        }}
+        className="flex items-center gap-1.5 px-4 py-2 bg-[hsl(210,100%,56%)] hover:bg-[hsl(210,100%,48%)] text-white rounded-xl text-sm font-medium transition-colors glow cursor-pointer"
       >
         <FileDown className="w-4 h-4" />
         Download PDF
-      </a>
+      </button>
     </div>
   );
 }

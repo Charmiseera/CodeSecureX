@@ -13,6 +13,8 @@ class User(Document):
     hashed_password: str
     role: Literal["user", "admin"] = "user"
     is_active: bool = True
+    full_name: str | None = None          # Optional display name; falls back to username
+    avatar_url: str | None = None         # URL to uploaded avatar image; null = none set
     reset_token: str | None = None
     reset_token_expires: datetime | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

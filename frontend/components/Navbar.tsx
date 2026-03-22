@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Shield, Code2, LayoutDashboard, Settings, LogOut, LogIn, UserPlus, User } from "lucide-react";
+import { Shield, Code2, LayoutDashboard, Settings, LogOut, LogIn, UserPlus, User, FileText } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const publicLinks = [
@@ -22,12 +22,21 @@ export function Navbar() {
   const links = [
     ...publicLinks,
     ...(user && user.role !== "admin" ? [{ href: "/scan", label: "Scan Code", icon: Code2 }] : []),
-    ...(user ? [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
+    ...(user && user.role !== "admin" ? [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }] : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin", icon: Settings }] : []),
+    ...(user?.role === "admin" ? [{ href: "/admin/reports", label: "Reports", icon: FileText }] : []),
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 h-16 glass border-b border-[hsl(222,47%,14%)]">
+    <nav 
+      className="fixed top-0 left-0 right-0 z-50 h-16"
+      style={{
+        background: "rgba(5, 5, 15, 0.75)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.06)"
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -35,7 +44,7 @@ export function Navbar() {
             <Shield className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-lg tracking-tight">
-            Secure<span className="text-[hsl(210,100%,56%)]">Code</span>AI
+            Code<span className="text-[hsl(210,100%,56%)]">Secure</span>X
           </span>
         </Link>
 
@@ -65,16 +74,24 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                {/* User badge */}
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-[hsl(215,16%,65%)] bg-[hsl(222,47%,10%)] border border-[hsl(222,47%,18%)]">
-                  <User className="w-3.5 h-3.5 text-[hsl(210,100%,56%)]" />
-                  <span className="font-medium">{user.username}</span>
+                {/* User Profile Link */}
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-[hsl(215,16%,65%)] bg-[hsl(222,47%,10%)] border border-[hsl(222,47%,18%)] hover:bg-[hsl(222,47%,12%)] hover:text-[hsl(213,31%,91%)] transition-colors group"
+                >
+                  <div 
+                    className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden shrink-0"
+                    style={{ background: "hsl(210,100%,56%/0.15)", color: "hsl(210,100%,56%)" }}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-medium group-hover:text-white transition-colors">{user.username}</span>
                   {user.role === "admin" && user.username.toLowerCase() !== "admin" && (
                     <span className="text-[10px] bg-[hsl(210,100%,56%)/0.2] text-[hsl(210,100%,70%)] px-1.5 py-0.5 rounded-full font-semibold tracking-wide uppercase">
                       admin
                     </span>
                   )}
-                </div>
+                </Link>
                 <button
                   id="logout-btn"
                   onClick={logout}

@@ -61,6 +61,10 @@ export interface Vulnerability {
 export interface ScanResponse {
   scan_id: string;
   vulnerabilities: Vulnerability[];
+  security_health_score?: number;
+  score_label?: string;
+  severity_counts?: { high: number; medium: number; low: number };
+  critical_paths?: number;
 }
 
 export interface ScanHistoryItem {
@@ -114,8 +118,17 @@ export const getScanHistory = (limit = 50) =>
 export const generateReport = (scan_id: string) =>
   api.post<ReportResponse>("/report/generate", { scan_id }).then((r) => r.data);
 
-export const downloadReportUrl = (report_id: string) =>
-  `http://localhost:8000/api/report/${report_id}`;
+export const downloadReport = async (scan_id: string, filename: string = `report_${scan_id}.pdf`) => {
+  const response = await api.get(`/report/${scan_id}`, { responseType: "blob" });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
 
 // ─── Admin API ────────────────────────────────────────────────────────────────
 

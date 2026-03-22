@@ -33,9 +33,15 @@ export default function LoginPage() {
           return toast.error("Please enter your password.");
         }
         const { access_token } = await loginApi(email, password);
-        await login(access_token);
+        const userData = await login(access_token);
         toast.success("Welcome back!");
-        router.push("/dashboard");
+        
+        const isAdmin = userData?.role === "admin";
+        if (isAdmin) {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err: unknown) {
       const msg =
@@ -68,7 +74,7 @@ export default function LoginPage() {
             <p className="text-sm text-center text-[hsl(215,16%,47%)] mt-1">
               {isForgot 
                 ? "Enter your email to receive a reset link" 
-                : "Sign in to your SecureCodeAI account"}
+                : "Sign in to your CodeSecureX account"}
             </p>
           </div>
 
