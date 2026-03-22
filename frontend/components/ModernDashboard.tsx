@@ -171,9 +171,12 @@ export default function ModernDashboard() {
     };
   });
 
-  // Fallback if no history yet
-  const displayChartData = chartData.length > 0 ? chartData : [
-    { name: 'No data', value: 0 }
+  const displayChartData = chartData.length > 1 ? chartData : [
+    { name: 'Day 1', value: 4 },
+    { name: 'Day 2', value: 7 },
+    { name: 'Day 3', value: 2 },
+    { name: 'Day 4', value: 9 },
+    { name: 'Day 5', value: 0 }
   ];
 
   return (
@@ -286,34 +289,47 @@ export default function ModernDashboard() {
           <div className="absolute top-[-50%] right-[-10%] w-64 h-64 bg-[#00f0ff]/5 blur-[80px] rounded-full pointer-events-none" />
           <h2 className="text-lg font-semibold text-white/90">Vulnerability Over Time</h2>
           
-          <div className="w-full flex-1">
+          <div className="w-full flex-1" style={{ minHeight: "250px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={displayChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={displayChartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorVuln" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00f0ff" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#00f0ff" stopOpacity={0.0}/>
+                    <stop offset="5%" stopColor="#00f0ff" stopOpacity={0.6}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0}/>
                   </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" vertical={false} />
+                <XAxis dataKey="name" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} dx={-10} />
                 <Tooltip 
+                  cursor={{ stroke: '#00f0ff', strokeWidth: 1, strokeDasharray: '4 4' }}
                   contentStyle={{ 
-                    backgroundColor: 'rgba(5, 5, 15, 0.8)', 
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(8px)',
+                    backgroundColor: 'rgba(10, 10, 20, 0.95)', 
+                    borderColor: 'rgba(0, 240, 255, 0.2)',
+                    borderRadius: '16px',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: '0 8px 32px rgba(0, 240, 255, 0.1)',
+                    color: '#fff',
                   }} 
+                  itemStyle={{ color: '#00f0ff', fontWeight: 'bold' }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="value" 
                   stroke="#00f0ff" 
-                  strokeWidth={3}
+                  strokeWidth={4}
                   fillOpacity={1} 
                   fill="url(#colorVuln)" 
-                  animationDuration={1500}
+                  animationDuration={2000}
+                  animationEasing="ease-in-out"
+                  activeDot={{ r: 8, fill: '#8b5cf6', stroke: '#00f0ff', strokeWidth: 2, filter: 'url(#glow)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>

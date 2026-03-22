@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
+import { ProfileDashboardButton } from "@/components/ProfileDashboardButton";
 
 export const metadata: Metadata = {
   title: "SecureCodeAI — LLM Vulnerability Scanner",
@@ -42,6 +43,7 @@ export default function RootLayout({
             error:   { iconTheme: { primary: "hsl(0,72%,51%)",   secondary: "hsl(222,47%,10%)" } },
           }}
         />
+        <ProfileDashboardButton />
       </body>
     </html>
   );
