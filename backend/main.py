@@ -9,7 +9,9 @@ from database.connection import get_client, get_database, MONGODB_URL
 from models.scan_model import Scan
 from models.report_model import Report
 from models.user_model import User
+from models.token_model import Token
 from routes import scan, report, admin
+from routes import github as github_router
 from services.vulnerability_service import get_scan_history
 
 logging.basicConfig(level=logging.INFO)
@@ -23,10 +25,9 @@ async def lifespan(app: FastAPI):
     client = get_client()
     await init_beanie(
         database=get_database(),
-        document_models=[Scan, Report, User],
-
+        document_models=[Scan, Report, User, Token],
     )
-    logger.info("Beanie ODM initialised — collections: scans, reports, users")
+    logger.info("Beanie ODM initialised — collections: scans, reports, users, tokens")
     yield
     client.close()
     logger.info("MongoDB connection closed.")
@@ -35,22 +36,23 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SecureCodeAI API",
     description="LLM-powered code vulnerability scanner — backed by MongoDB + Nebius AI",
-    version="2.0.0",
+    version="2.1.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "*"],  # "*" allows GitHub Action runners
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
-app.include_router(scan.router,   prefix="/api")
-app.include_router(report.router, prefix="/api")
-app.include_router(admin.router,  prefix="/api")
+app.include_router(scan.router,          prefix="/api")
+app.include_router(report.router,        prefix="/api")
+app.include_router(admin.router,         prefix="/api")
+app.include_router(github_router.router, prefix="/api")
 
 
 # ─── Top-level alias /api/history ─────────────────────────────────────────────
@@ -62,4 +64,4 @@ async def history_alias(limit: int = 50):
 
 @app.get("/health", tags=["Health"])
 def health():
-    return {"status": "ok", "db": "mongodb", "version": "2.0.0"}
+    return {"status": "ok", "db": "mongodb", "version": "2.1.0"}

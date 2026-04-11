@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Shield, ScanLine, Zap, FileText, ChevronRight, Code2,
-  AlertTriangle, CheckCircle2, Lock,
+  AlertTriangle, CheckCircle2, Lock, Github,
 } from "lucide-react";
 
 const FEATURES = [
@@ -10,36 +10,49 @@ const FEATURES = [
     title: "Instant AI Analysis",
     desc: "Powered by Nebius LLM — paste code and get results in seconds.",
     color: "hsl(210,100%,56%)",
+    href: null,
   },
   {
     icon: AlertTriangle,
     title: "Multi-Severity Detection",
     desc: "Finds Critical, High, Medium and Low severity vulnerabilities.",
     color: "hsl(0,72%,51%)",
+    href: null,
   },
   {
     icon: CheckCircle2,
     title: "Fix Suggestions",
     desc: "Each vulnerability comes with a concrete, actionable fix.",
     color: "hsl(142,71%,45%)",
+    href: null,
   },
   {
     icon: FileText,
     title: "PDF Reports",
     desc: "Generate professional security reports — downloadable instantly.",
     color: "hsl(38,92%,50%)",
+    href: null,
   },
   {
     icon: Code2,
     title: "4 Languages",
     desc: "Python, JavaScript, Java, and PHP — with Monaco code editor.",
     color: "hsl(270,60%,65%)",
+    href: null,
   },
   {
     icon: Lock,
     title: "Privacy First",
     desc: "Code is never stored — only a SHA-256 hash is kept in the database.",
     color: "hsl(210,100%,56%)",
+    href: null,
+  },
+  {
+    icon: Github,
+    title: "GitHub Action",
+    desc: "Auto-scan every PR. Get vulnerability comments posted directly on GitHub.",
+    color: "hsl(142,71%,45%)",
+    href: "/github",
   },
 ];
 
@@ -98,21 +111,30 @@ export default function HomePage() {
           Everything you need for secure code
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map(({ icon: Icon, title, desc, color }) => (
-            <div
-              key={title}
-              className="glass rounded-2xl p-5 hover:border-[hsl(210,100%,56%)/0.3] transition-all duration-200 group"
-            >
+          {FEATURES.map(({ icon: Icon, title, desc, color, href }) => {
+            const card = (
               <div
-                className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
-                style={{ background: `${color}18`, border: `1px solid ${color}30` }}
+                className={`glass rounded-2xl p-5 transition-all duration-200 group ${href ? "hover:border-[hsl(142,71%,45%)/0.5] cursor-pointer" : "hover:border-[hsl(210,100%,56%)/0.3]"}`}
               >
-                <Icon className="w-5 h-5" style={{ color }} />
+                <div
+                  className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center"
+                  style={{ background: `${color}18`, border: `1px solid ${color}30` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color }} />
+                </div>
+                <h3 className="font-semibold mb-1.5 flex items-center gap-2">
+                  {title}
+                  {href && <span className="text-xs px-2 py-0.5 rounded-full bg-[hsl(142,71%,45%)/0.15] text-[hsl(142,71%,45%)] border border-[hsl(142,71%,45%)/0.3]">New</span>}
+                </h3>
+                <p className="text-sm text-[hsl(215,16%,55%)] leading-relaxed">{desc}</p>
               </div>
-              <h3 className="font-semibold mb-1.5">{title}</h3>
-              <p className="text-sm text-[hsl(215,16%,55%)] leading-relaxed">{desc}</p>
-            </div>
-          ))}
+            );
+            return href ? (
+              <Link key={title} href={href}>{card}</Link>
+            ) : (
+              <div key={title}>{card}</div>
+            );
+          })}
         </div>
       </section>
     </div>

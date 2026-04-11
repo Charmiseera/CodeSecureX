@@ -15,7 +15,13 @@ async def analyze_code(request: ScanRequest):
     Returns a list of detected vulnerabilities with severity and fix recommendations.
     """
     try:
-        return await run_scan(code=request.code, language=request.language)
+        return await run_scan(
+            code=request.code,
+            language=request.language,
+            source=request.source,
+            repo_name=request.repo_name,
+            pr_url=request.pr_url,
+        )
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc))
     except Exception:

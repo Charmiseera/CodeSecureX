@@ -1,13 +1,17 @@
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import BaseModel, field_validator
 
 Language = Literal["python", "javascript", "java", "php"]
 SeverityLevel = Literal["Low", "Medium", "High", "Critical"]
+ScanSource = Literal["web", "github", "cli"]
 
 
 class ScanRequest(BaseModel):
     code: str
     language: Language
+    source: ScanSource = "web"           # NEW: track where scan originated
+    repo_name: Optional[str] = None      # NEW: e.g. "owner/repo"
+    pr_url: Optional[str] = None         # NEW: GitHub PR URL
 
     @field_validator("code")
     @classmethod
@@ -36,4 +40,6 @@ class ScanHistoryItem(BaseModel):
     scan_id: str          # MongoDB ObjectId as string
     language: str
     vulnerability_count: int
+    source: ScanSource = "web"           # NEW: show source badge on dashboard
+    repo_name: Optional[str] = None      # NEW: repo context
     created_at: str

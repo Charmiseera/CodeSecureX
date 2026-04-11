@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getScanHistory, fetchAnalytics } from "@/services/api";
 import type { ScanHistoryItem, AdminAnalytics } from "@/services/api";
 import {
-  LayoutDashboard, ScanLine, Shield, AlertTriangle, Clock, RefreshCw,
+  LayoutDashboard, ScanLine, Shield, AlertTriangle, Clock, RefreshCw, Globe, Github, Terminal,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -128,23 +128,37 @@ export default function DashboardPage() {
             <p className="text-sm text-[hsl(215,16%,55%)] py-4 text-center">No scans yet. <Link href="/scan" className="text-[hsl(210,100%,56%)] underline">Run your first scan</Link></p>
           ) : (
             <div className="space-y-2">
-              {history.map((s) => (
-                <div key={s.scan_id} className="flex items-center justify-between p-3 rounded-xl bg-[hsl(222,47%,8%)] hover:bg-[hsl(222,47%,10%)] transition-colors">
-                  <div>
-                    <p className="text-sm font-medium capitalize">{s.language}</p>
-                    <p className="text-xs text-[hsl(215,16%,55%)]">
-                      {new Date(s.created_at).toLocaleString()}
-                    </p>
+              {history.map((s) => {
+                const SourceIcon = s.source === "github" ? Github : s.source === "cli" ? Terminal : Globe;
+                const sourceLabel = s.source === "github" ? "GitHub" : s.source === "cli" ? "CLI" : "Web";
+                const sourceColor = s.source === "github" ? "hsl(210,100%,56%)" : s.source === "cli" ? "hsl(270,60%,65%)" : "hsl(142,71%,45%)";
+                return (
+                  <div key={s.scan_id} className="flex items-center justify-between p-3 rounded-xl bg-[hsl(222,47%,8%)] hover:bg-[hsl(222,47%,10%)] transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${sourceColor}18`, border: `1px solid ${sourceColor}30` }}>
+                        <SourceIcon className="w-3.5 h-3.5" style={{ color: sourceColor }} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium capitalize">{s.language}</p>
+                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${sourceColor}15`, color: sourceColor }}>{sourceLabel}</span>
+                          {s.repo_name && <span className="text-xs text-[hsl(215,16%,45%)] font-mono">{s.repo_name}</span>}
+                        </div>
+                        <p className="text-xs text-[hsl(215,16%,55%)]">
+                          {new Date(s.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                      s.vulnerability_count === 0 ? "badge-low" :
+                      s.vulnerability_count <= 2  ? "badge-medium" :
+                                                    "badge-high"
+                    }`}>
+                      {s.vulnerability_count} issue{s.vulnerability_count !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                    s.vulnerability_count === 0 ? "badge-low" :
-                    s.vulnerability_count <= 2  ? "badge-medium" :
-                                                  "badge-high"
-                  }`}>
-                    {s.vulnerability_count} issue{s.vulnerability_count !== 1 ? "s" : ""}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

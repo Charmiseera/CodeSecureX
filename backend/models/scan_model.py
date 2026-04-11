@@ -1,6 +1,6 @@
 import hashlib
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import Optional, Literal
 from beanie import Document, Indexed
 from pydantic import Field
 
@@ -10,7 +10,10 @@ class Scan(Document):
 
     code_hash: Indexed(str)          # type: ignore[valid-type]
     language: str
-    vulnerabilities_json: str = "[]"  # stored as JSON string (matches existing service logic)
+    vulnerabilities_json: str = "[]"  # stored as JSON string
+    source: Literal["web", "github", "cli"] = "web"  # where the scan came from
+    repo_name: Optional[str] = None   # e.g. "owner/repo" for GitHub scans
+    pr_url: Optional[str] = None      # PR link for GitHub scans
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings:

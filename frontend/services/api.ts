@@ -27,6 +27,8 @@ export interface ScanHistoryItem {
   scan_id: string;         // MongoDB ObjectId
   language: string;
   vulnerability_count: number;
+  source: "web" | "github" | "cli";  // where the scan came from
+  repo_name?: string;                 // e.g. "owner/repo" for GitHub scans
   created_at: string;
 }
 

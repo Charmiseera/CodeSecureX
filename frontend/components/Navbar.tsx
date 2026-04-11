@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, Code2, LayoutDashboard, FileText, Settings } from "lucide-react";
+import { Shield, Code2, LayoutDashboard, FileText, Settings, Github } from "lucide-react";
 
 const links = [
   { href: "/",          label: "Home",      icon: Shield },
   { href: "/scan",      label: "Scan Code", icon: Code2 },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/reports",   label: "Reports",   icon: FileText },
+  { href: "/github",    label: "GitHub",    icon: Github },
   { href: "/admin",     label: "Admin",     icon: Settings },
 ];
 
