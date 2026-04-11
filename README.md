@@ -13,7 +13,7 @@ CodeSecureX is a powerful application designed to enhance the security of code r
 - **Frontend**: React.js
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB
-- **Others**: Docker, Kubernetes, Jest, ESLint
+- **Others**: Docker, Jest, ESLint
 
 ## Installation
 To install CodeSecureX, follow these steps:
