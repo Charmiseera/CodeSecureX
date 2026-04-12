@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://codesecurex.onrender.com/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api",
   headers: { "Content-Type": "application/json" },
   timeout: 60000, // 60s — LLM calls can be slow
 });
@@ -88,6 +88,19 @@ export interface AdminAnalytics {
   top_vulnerabilities: { type: string; count: number }[];
 }
 
+export interface FileMetadata {
+  filename: string;
+  path: string;
+  size: number;
+  download_url: string;
+}
+
+export interface RepoAnalyzeResponse {
+  repo: string;
+  total_files: number;
+  files: FileMetadata[];
+}
+
 // ─── Auth API ─────────────────────────────────────────────────────────────────
 
 export const register = (username: string, email: string, password: string) =>
@@ -143,5 +156,10 @@ export const suspendUser = (userId: string) =>
 
 export const unsuspendUser = (userId: string) =>
   api.post("/admin/unsuspend", { user_id: userId }).then((r) => r.data);
+
+// ─── GitHub API ───────────────────────────────────────────────────────────────
+
+export const analyzeRepo = (repoUrl: string) =>
+  api.post<RepoAnalyzeResponse>("/github/analyze-repo", { repo_url: repoUrl }).then((r) => r.data);
 
 export default api;

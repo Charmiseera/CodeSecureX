@@ -24,8 +24,8 @@ if _api_key:
     _client: OpenAI | None = OpenAI(
         api_key=_api_key,
         base_url="https://api.studio.nebius.ai/v1/",
-        timeout=15.0,  # Strict timeout: fail fast and fallback if Nebius hangs
-        max_retries=0, # Do not retry 2 times by default (prevents 45s cumulative hang)
+        timeout=90.0,  # Increased: Nebius can take 60s+ for larger files
+        max_retries=0, # Do not retry by default (prevents cumulative hangs)
     )
     logger.info("Nebius LLM client initialised with real API key.")
 else:
@@ -118,6 +118,14 @@ def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
     if _client is None:
         logger.info("No API key — returning demo vulnerabilities.")
         return _demo_vulnerabilities(language)
+
+    # Truncate large files — LLM performs best on focused code segments
+    MAX_CHARS = 8_000
+    if len(code) > MAX_CHARS:
+        logger.info(
+            "Code truncated from %d to %d chars for LLM analysis", len(code), MAX_CHARS
+        )
+        code = code[:MAX_CHARS] + "\n# ... (truncated for analysis)"
 
     system_msg = (
         "You are an expert application security engineer. "

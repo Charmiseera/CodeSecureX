@@ -13,6 +13,7 @@ from models.report_model import Report
 from models.user_model import User
 from models.admin_log import AdminLog
 from routes import scan, report, admin
+from routes.github import router as github_router
 from routes.auth import router as auth_router
 from routers.dashboard import router as dashboard_router
 from routers.profile import router as profile_router
@@ -63,6 +64,7 @@ app.include_router(report.router,   prefix="/api")
 app.include_router(admin.router,    prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(profile_router,  prefix="/api")
+app.include_router(github_router,   prefix="/api")
 
 STATIC_DIR = Path(__file__).parent / "static"
 STATIC_DIR.mkdir(exist_ok=True)
