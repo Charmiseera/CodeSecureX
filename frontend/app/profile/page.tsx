@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Shield, AlertTriangle, Loader2 } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import { useAuth } from "@/lib/auth-context";
 import type { ProfileData } from "@/lib/profile-types";
 
@@ -11,7 +12,7 @@ import ProfileInfoForm from "@/components/profile/ProfileInfoForm";
 import PasswordChangeForm from "@/components/profile/PasswordChangeForm";
 import DeleteAccountPanel from "@/components/profile/DeleteAccountPanel";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+const API_URL = getApiUrl();
 
 type Tab = "info" | "security" | "delete";
 

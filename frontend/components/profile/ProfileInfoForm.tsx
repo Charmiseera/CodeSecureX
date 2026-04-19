@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import type { ProfileData } from "@/lib/profile-types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+const API_URL = getApiUrl();
 
 interface Props {
   profile: ProfileData;

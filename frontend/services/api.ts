@@ -1,7 +1,8 @@
 import axios from "axios";
+import { getApiUrl } from "@/lib/api-url";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://codesecurex.onrender.com/api",
+  baseURL: getApiUrl(),
   headers: { "Content-Type": "application/json" },
   timeout: 60000, // 60s — LLM calls can be slow
 });

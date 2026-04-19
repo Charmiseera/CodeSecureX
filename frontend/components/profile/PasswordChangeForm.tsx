@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+const API_URL = getApiUrl();
 
 interface Props {
   token: string;

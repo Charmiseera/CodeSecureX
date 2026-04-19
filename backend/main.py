@@ -51,8 +51,8 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://code-secure-x.vercel.app",
-        "https://code-secure-x.vercel.app/",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,6 +66,16 @@ app.include_router(admin.router,    prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(profile_router,  prefix="/api")
 app.include_router(github_router,   prefix="/api")
+
+# Compatibility aliases for frontend builds configured with the backend root
+# URL instead of the `/api` base path.
+app.include_router(auth_router)
+app.include_router(scan.router)
+app.include_router(report.router)
+app.include_router(admin.router)
+app.include_router(dashboard_router)
+app.include_router(profile_router)
+app.include_router(github_router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 STATIC_DIR.mkdir(exist_ok=True)

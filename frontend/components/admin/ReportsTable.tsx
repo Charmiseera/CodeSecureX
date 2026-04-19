@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, Search, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import { ReportRow } from "./ReportRow";
 
 export function ReportsTable() {
@@ -23,7 +24,7 @@ export function ReportsTable() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+      const baseUrl = getApiUrl();
       const params = new URLSearchParams({
         page: String(currentPage),
         limit: "20",

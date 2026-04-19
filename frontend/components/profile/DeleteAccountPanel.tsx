@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, AlertTriangle, Loader2 } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import { useAuth } from "@/lib/auth-context";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+const API_URL = getApiUrl();
 
 interface Props {
   token: string;

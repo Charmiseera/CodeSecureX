@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Download, Code2, Calendar } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import { withAuth } from "@/lib/withAuth";
 import { downloadReport } from "@/services/api";
 import toast from "react-hot-toast";
@@ -48,7 +49,7 @@ function AdminScanPage({ params }: { params: any }) {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found");
         
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+        const baseUrl = getApiUrl();
         const res = await fetch(`${baseUrl}/admin/scans/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Camera, Loader2, Calendar } from "lucide-react";
+import { getApiUrl } from "@/lib/api-url";
 import type { ProfileData } from "@/lib/profile-types";
 
 // Note: Use absolute URL for the API so it goes to FastAPI correctly in development
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
+const API_URL = getApiUrl();
 
 interface Props {
   profile: ProfileData;
