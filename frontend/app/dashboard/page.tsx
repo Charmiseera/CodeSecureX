@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScanLine } from "lucide-react";
 import StatCards from "@/components/dashboard/StatCards";
@@ -5,6 +8,8 @@ import VulnerabilitiesChart from "@/components/dashboard/VulnerabilitiesChart";
 import RecentScans from "@/components/dashboard/RecentScans";
 import AdminRedirect from "@/components/auth/AdminRedirect";
 import type { DashboardSummary } from "@/lib/dashboard-types";
+import api from "@/services/api";
+import { useAuth } from "@/lib/auth-context";
 
 // ─── Skeleton helpers ──────────────────────────────────────────────────────────
 
@@ -45,12 +50,7 @@ function ErrorBanner({ message }: { message: string }) {
 // ─── Greeting helpers ──────────────────────────────────────────────────────────
 
 function getGreeting(): string {
-  // Use UTC+5:30 approximate (server renders in UTC; IST is UTC+5:30)
-  const hour = new Date().getUTCHours();
-  if (hour < 6 || hour >= 21) return "Good evening";
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  return "Good morning";
 }
 
 function formatDate(date: Date): string {
@@ -64,28 +64,40 @@ function formatDate(date: Date): string {
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
-export default async function DashboardPage() {
-  let summary: DashboardSummary | null = null;
-  let fetchError: string | null = null;
+export default function DashboardPage() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuth();
 
-  try {
-    // Server-to-server fetch (bypassing browser CORS) directly to FastAPI backend
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://codesecurex.onrender.com/api";
-    const res = await fetch(`${baseUrl}/dashboard/summary`, { 
-      cache: "no-store" 
-    });
-    if (!res.ok) {
-      fetchError = `Backend returned HTTP ${res.status}. Make sure the API server is running.`;
-    } else {
-      summary = (await res.json()) as DashboardSummary;
-    }
-  } catch {
-    fetchError =
-      "Could not reach the backend API. Make sure it is running on port 8000.";
-  }
+  // Hydration safety
+  const [greeting, setGreeting] = useState("Hello");
+  const [today, setToday] = useState("");
 
-  const greeting = getGreeting();
-  const today = formatDate(new Date());
+  useEffect(() => {
+    setGreeting(getGreeting());
+    setToday(formatDate(new Date()));
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    const fetchDashboardData = async () => {
+      try {
+        const res = await api.get<DashboardSummary>("/dashboard/summary");
+        setSummary(res.data);
+        setFetchError(null);
+      } catch (err: any) {
+        setFetchError(err.message || "Could not fetch dashboard analytics.");
+      }
+    };
+
+    fetchDashboardData();
+
+    // Poll every 10 seconds for real-time updates
+    const intervalId = setInterval(fetchDashboardData, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [authLoading]);
 
   return (
     <>
@@ -95,17 +107,10 @@ export default async function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {greeting}, security lead.
+            {greeting}, {user?.username ?? "security lead"}.
           </h1>
           <p className="text-xs text-[hsl(215_16%_55%)] mt-1">
-            {today} &nbsp;·&nbsp;{" "}
-            <span
-              className="inline-flex items-center gap-1 font-medium"
-              style={{ color: "hsl(142 71% 45%)" }}
-            >
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-              System Status: Operational
-            </span>
+            {today}
           </p>
         </div>
         <Link

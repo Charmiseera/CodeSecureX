@@ -5,7 +5,9 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from models.user_model import User
+from utils.dependencies import get_current_user
 
 from models.scan_model import Scan
 from schemas.dashboard_schema import (
@@ -63,14 +65,14 @@ def _parse_findings(vulns: list[dict]) -> tuple[int, int, int]:
 # ─── Endpoint ──────────────────────────────────────────────────────────────────
 
 @router.get("/summary", response_model=DashboardSummary)
-async def dashboard_summary() -> DashboardSummary:
-    """Aggregate scan data and return dashboard KPIs."""
+async def dashboard_summary(current_user: User = Depends(get_current_user)) -> DashboardSummary:
+    """Aggregate scan data and return dashboard KPIs for the logged-in user."""
     now = datetime.now(timezone.utc)
     today = now.date()
 
-    # Fetch all scans (MongoDB is the source of truth)
+    # Fetch scans specific to the logged-in user
     try:
-        all_scans = await Scan.find().sort(-Scan.created_at).to_list()
+        all_scans = await Scan.find(Scan.user_id == current_user.id).sort(-Scan.created_at).to_list()
     except Exception as exc:
         logger.warning("MongoDB unavailable for dashboard — returning zeroed summary. %s", exc)
         all_scans = []

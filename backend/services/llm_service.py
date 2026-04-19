@@ -23,7 +23,7 @@ _api_key = os.getenv("NEBIUS_API_KEY", "").strip()
 if _api_key:
     _client: OpenAI | None = OpenAI(
         api_key=_api_key,
-        base_url="https://api.studio.nebius.ai/v1/",
+        base_url="https://api.tokenfactory.nebius.com/v1",
         timeout=90.0,  # Increased: Nebius can take 60s+ for larger files
         max_retries=0, # Do not retry by default (prevents cumulative hangs)
     )
@@ -32,7 +32,7 @@ else:
     _client = None
     logger.warning("NEBIUS_API_KEY not set in backend/.env — running in demo mode.")
 
-_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct-fast"
+_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 
 
 def _sanitise_llm_output(text: str) -> str:

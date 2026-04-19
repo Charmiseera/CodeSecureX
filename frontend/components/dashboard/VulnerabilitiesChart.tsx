@@ -144,13 +144,13 @@ export default function VulnerabilitiesChart({ data }: Props) {
           onMouseLeave={handleMouseLeave}
         >
           {/* Horizontal grid + Y labels */}
-          {yTicks.map((val) => {
+          {yTicks.map((val, index) => {
             const y =
               PAD.top +
               (1 - (val - minVal) / (maxVal - minVal || 1)) *
                 (H - PAD.top - PAD.bottom);
             return (
-              <g key={val}>
+              <g key={index}>
                 <line
                   x1={PAD.left}
                   y1={y}

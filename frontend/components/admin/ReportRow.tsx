@@ -111,7 +111,7 @@ export function ReportRow({ report }: { report: any }) {
         <button 
           onClick={async () => {
             try {
-              await downloadReport(report.scan_id);
+              await downloadReport(report.pdf_url || report.scan_id);
             } catch {
               toast.error("Failed to download PDF report");
             }

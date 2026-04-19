@@ -104,6 +104,9 @@ async def forgot_password(body: ForgotPasswordRequest):
     reset_link = f"http://localhost:3000/reset-password?token={token}"
     try:
         await send_reset_email(user.email, reset_link)
+    except RuntimeError as exc:
+        logger.warning("Skipped reset email because mail is not configured: %s", exc)
+        return {"message": "If this email is registered, a reset link has been sent."}
     except Exception as e:
         logger.error(f"Failed to send reset email: {e}")
         # In production, you might not want to reveal this error

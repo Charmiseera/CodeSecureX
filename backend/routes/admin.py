@@ -190,7 +190,7 @@ async def get_admin_reports(
             "scan_name": scan_name,
             "scan_id": str(scan.id),
             "generated_at": gen_at,
-            "pdf_url": getattr(r, "pdf_url", f"/api/report/{r.scan_id}")
+            "pdf_url": f"/report/{r.scan_id}"
         })
         
     total = len(results)

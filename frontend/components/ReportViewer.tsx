@@ -28,7 +28,7 @@ export function ReportViewer({ reportId, scanId, createdAt }: Props) {
       <button
         onClick={async () => {
           try {
-            await downloadReport(reportId);
+            await downloadReport(scanId || reportId);
           } catch {
             toast.error("Failed to download PDF report");
           }

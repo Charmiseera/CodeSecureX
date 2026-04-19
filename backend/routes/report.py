@@ -33,23 +33,27 @@ async def generate_report(request: ReportRequest, current_user: User = Depends(g
         )
 
 
-@router.get("/{scan_id}")
-async def download_report(scan_id: str, current_user: User = Depends(get_current_user)):
-    """Download a PDF report by scan ID. Generates on the fly if it doesn't exist."""
+@router.get("/{report_or_scan_id}")
+async def download_report(report_or_scan_id: str, current_user: User = Depends(get_current_user)):
+    """Download a PDF report by report ID or scan ID. Generates on the fly if a report does not exist for the scan."""
     try:
-        oid = PydanticObjectId(scan_id)
+        oid = PydanticObjectId(report_or_scan_id)
     except Exception:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid scan ID")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid report or scan ID")
 
-    report = await Report.find_one(Report.scan_id == oid)
+    # Support both report IDs and scan IDs for compatibility with frontend clients.
+    report = await Report.get(oid)
+    if report is None:
+        report = await Report.find_one(Report.scan_id == oid)
+
     if report is None:
         try:
-            res = await generate_pdf_report(scan_id=scan_id)
+            res = await generate_pdf_report(scan_id=report_or_scan_id)
             report = await Report.get(PydanticObjectId(res.report_id))
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
         except Exception:
-            logger.exception("Failed to generate report on the fly for scan_id=%s", scan_id)
+            logger.exception("Failed to generate report on the fly for scan_id=%s", report_or_scan_id)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to generate report.")
 
     if report is None:

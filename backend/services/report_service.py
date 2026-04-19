@@ -63,7 +63,7 @@ async def generate_pdf_report(scan_id: str, user_id: str | None = None) -> Repor
     return ReportResponse(
         report_id=str(report.id),
         scan_id=scan_id,
-        pdf_url=f"/api/report/{report.id}",
+        pdf_url=f"/report/{report.id}",
     )
 
 

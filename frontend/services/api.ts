@@ -131,12 +131,13 @@ export const getScanHistory = (limit = 50) =>
 export const generateReport = (scan_id: string) =>
   api.post<ReportResponse>("/report/generate", { scan_id }).then((r) => r.data);
 
-export const downloadReport = async (scan_id: string, filename: string = `report_${scan_id}.pdf`) => {
-  const response = await api.get(`/report/${scan_id}`, { responseType: "blob" });
+export const downloadReport = async (pathOrId: string, filename?: string) => {
+  const downloadPath = pathOrId.startsWith("/") ? pathOrId : `/report/${pathOrId}`;
+  const response = await api.get(downloadPath, { responseType: "blob" });
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", filename);
+  link.setAttribute("download", filename || `report_${pathOrId}.pdf`);
   document.body.appendChild(link);
   link.click();
   link.remove();
