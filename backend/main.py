@@ -49,7 +49,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        "fetch("http://127.0.0.1:8000/api/auth/register").0.0.1:3000",
         "https://code-secure-x.vercel.app",
         "https://code-secure-x.vercel.app/"
     ],
