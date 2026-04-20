@@ -4,7 +4,7 @@ import logging
 from fastapi import APIRouter, HTTPException, status, Depends
 
 from schemas.scan_schema import ScanRequest, ScanResponse, ScanHistoryItem
-from services.vulnerability_service import run_scan, get_scan_history
+from services.vulnerability_service import run_scan, get_scan_history, ScanTimeoutError
 from utils.dependencies import get_current_user
 from models.user_model import User
 
@@ -17,6 +17,8 @@ async def analyze_code(request: ScanRequest, current_user: User = Depends(get_cu
     """Submit code for vulnerability analysis. Requires authentication."""
     try:
         return await run_scan(code=request.code, language=request.language, user_id=current_user.id)
+    except ScanTimeoutError as exc:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail=str(exc))
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc))
     except Exception:
