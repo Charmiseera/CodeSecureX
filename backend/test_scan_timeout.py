@@ -10,6 +10,8 @@ from schemas.scan_schema import ScanRequest
 from services.vulnerability_service import ScanTimeoutError, run_scan
 from routes.scan import analyze_code
 
+TEST_USER_ID = "69e53c008131a278d5cc67b4"
+
 
 class ScanTimeoutTests(unittest.IsolatedAsyncioTestCase):
     async def test_run_scan_raises_timeout_error_when_analysis_exceeds_timeout(self):
@@ -35,7 +37,7 @@ class ScanTimeoutTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_route_returns_504_for_scan_timeout(self):
         req = ScanRequest(code="print('x')", language="python")
-        user = SimpleNamespace(id="69e53c008131a278d5cc67b4")
+        user = SimpleNamespace(id=TEST_USER_ID)
 
         with patch("routes.scan.run_scan", side_effect=ScanTimeoutError("timed out")):
             with self.assertRaises(HTTPException) as ctx:
