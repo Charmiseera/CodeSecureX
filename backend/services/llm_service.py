@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 
 from utils.prompt_templates import vulnerability_analysis_prompt, fix_suggestion_prompt
 
-# Max attempts to get valid JSON from the LLM before raising
-_MAX_JSON_RETRIES = 2
+# Keep synchronous scans inside hosted gateway time limits.
+_MAX_JSON_RETRIES = 1
 
 # Explicitly load backend/.env relative to this file's location
 ENV_PATH = os.path.join(os.path.dirname(__file__), "..", ".env")
@@ -24,8 +24,8 @@ if _api_key:
     _client: OpenAI | None = OpenAI(
         api_key=_api_key,
         base_url="https://api.tokenfactory.nebius.com/v1",
-        timeout=90.0,  # Increased: Nebius can take 60s+ for larger files
-        max_retries=0, # Do not retry by default (prevents cumulative hangs)
+        timeout=25.0,
+        max_retries=0,
     )
     logger.info("Nebius LLM client initialised with real API key.")
 else:
@@ -120,7 +120,7 @@ def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
         return _demo_vulnerabilities(language)
 
     # Truncate large files — LLM performs best on focused code segments
-    MAX_CHARS = 8_000
+    MAX_CHARS = 3_500
     if len(code) > MAX_CHARS:
         logger.info(
             "Code truncated from %d to %d chars for LLM analysis", len(code), MAX_CHARS
@@ -145,7 +145,7 @@ def analyze_code_vulnerabilities(code: str, language: str) -> list[dict]:
                 model=_MODEL,
                 messages=messages,
                 temperature=0.1,
-                max_tokens=4096,
+                max_tokens=1800,
             )
             raw = (response.choices[0].message.content or "").strip()
             logger.debug("LLM raw response (attempt %d, first 200 chars): %.200s", attempt, raw)

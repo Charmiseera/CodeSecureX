@@ -1,7 +1,7 @@
 def vulnerability_analysis_prompt(code: str, language: str) -> str:
     """
     Generates a structured prompt instructing the LLM to return a JSON array
-    of vulnerability objects, each including a ready-to-copy fixed_code block.
+    of vulnerability objects with concise remediation guidance.
     """
     return f"""You are a senior application security engineer performing a code security audit.
 
@@ -9,22 +9,21 @@ Analyze the following {language} code for security vulnerabilities.
 
 CRITICAL: Return ONLY a valid JSON array. No conversational text, no markdown fences, no preamble, no postscript.
 
-Each element MUST have exactly these fields:
+Each element MUST have these fields:
 [
   {{
     "type": "<vulnerability name>",
     "severity": "<Low|Medium|High|Critical>",
-    "explanation": "<detailed explanation with line references>",
-    "fix": "<step-by-step prose description of how to fix it>",
-    "fixed_code": "<COMPLETE corrected code snippet that the user can copy and paste directly — must be valid {language}, covering the vulnerable section or the whole file if small>"
+    "explanation": "<concise explanation with line references when possible>",
+    "fix": "<specific concise fix guidance>",
+    "fixed_code": "<optional corrected function or short snippet only when the fix is small>"
   }}
 ]
 
 Rules for fixed_code:
-- Must be a complete, runnable code snippet (NOT a diff, NOT pseudo-code).
-- If the vulnerability affects one function, return the full corrected function.
-- If the file is small (under 60 lines), return the entire corrected file.
-- Do NOT wrap fixed_code in markdown fences inside the JSON string — just raw source code.
+- Include fixed_code only if the corrected snippet is under 80 lines.
+- If the fix is broad or architectural, set fixed_code to null.
+- Do NOT wrap fixed_code in markdown fences inside the JSON string.
 - Escape any double-quotes inside the code as \\".
 
 If NO vulnerabilities exist, return: []
