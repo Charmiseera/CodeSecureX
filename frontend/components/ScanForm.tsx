@@ -43,7 +43,18 @@ export function ScanForm({ onScanComplete }: Props) {
       onScanComplete?.(data);
       toast.success(`Scan complete — ${data.vulnerabilities.length} issue(s) found.`);
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Scan failed. Is the backend running?";
+      const error = err as {
+        response?: { status?: number; data?: { detail?: string } };
+        request?: unknown;
+        message?: string;
+      };
+      const msg =
+        error.response?.data?.detail ??
+        (error.response?.status === 401
+          ? "Please log in again before scanning."
+          : error.request
+            ? "Scan failed because the API could not be reached. Check CORS or the frontend API URL."
+            : error.message || "Scan failed. Please try again.");
       toast.error(msg);
     } finally {
       setLoading(false);

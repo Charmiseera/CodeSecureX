@@ -5,8 +5,9 @@ import { ScanForm } from "@/components/ScanForm";
 import { HealthScoreCard } from "@/components/scan/HealthScoreCard";
 import { ScanLine } from "lucide-react";
 import type { ScanResponse } from "@/services/api";
+import { withAuth } from "@/lib/withAuth";
 
-export default function ScanPage() {
+function ScanPage() {
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
 
   return (
@@ -34,3 +35,5 @@ export default function ScanPage() {
     </div>
   );
 }
+
+export default withAuth(ScanPage);
