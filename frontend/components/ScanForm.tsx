@@ -44,13 +44,16 @@ export function ScanForm({ onScanComplete }: Props) {
       toast.success(`Scan complete — ${data.vulnerabilities.length} issue(s) found.`);
     } catch (err: unknown) {
       const error = err as {
+        code?: string;
         response?: { status?: number; data?: { detail?: string } };
         request?: unknown;
         message?: string;
       };
       const msg =
         error.response?.data?.detail ??
-        (error.response?.status === 401
+        (error.code === "ECONNABORTED"
+          ? "Scan timed out while waiting for the deployed API. Please try again with a smaller snippet."
+          : error.response?.status === 401
           ? "Please log in again before scanning."
           : error.request
             ? "Scan failed because the API could not be reached. Check CORS or the frontend API URL."

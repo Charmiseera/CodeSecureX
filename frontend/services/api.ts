@@ -4,7 +4,7 @@ import { getApiUrl } from "@/lib/api-url";
 const api = axios.create({
   baseURL: getApiUrl(),
   headers: { "Content-Type": "application/json" },
-  timeout: 60000, // 60s — LLM calls can be slow
+  timeout: 180000, // 180s - deployed LLM scans can be slow, especially after cold starts
 });
 
 // ─── JWT Request Interceptor ───────────────────────────────────────────────────
