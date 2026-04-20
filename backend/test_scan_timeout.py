@@ -1,5 +1,4 @@
 import asyncio
-import time
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -15,13 +14,13 @@ TEST_USER_ID = "69e53c008131a278d5cc67b4"
 
 class ScanTimeoutTests(unittest.IsolatedAsyncioTestCase):
     async def test_run_scan_raises_timeout_error_when_analysis_exceeds_timeout(self):
-        def slow_analyze(*_args, **_kwargs):
-            time.sleep(0.05)
+        async def slow_to_thread(*_args, **_kwargs):
+            await asyncio.sleep(0.05)
             return []
 
         with patch("services.vulnerability_service._SCAN_TIMEOUT_SECONDS", 0.01), patch(
-            "services.vulnerability_service.analyze_code_vulnerabilities",
-            side_effect=slow_analyze,
+            "services.vulnerability_service.asyncio.to_thread",
+            side_effect=slow_to_thread,
         ):
             with self.assertRaises(ScanTimeoutError):
                 await run_scan(code="print('x')", language="python", user_id=None)
